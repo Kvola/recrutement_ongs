@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vue formulaire candidature -->
+        <record id="view_ong_application_form" model="ir.ui.view">
+            <field name="name">ong.application.form</field>
+            <field name="model">ong.application</field>
+            <field name="arch" type="xml">
+                <form string="Candidature ONG">
+                    <header>
+                        <button name="action_submit" type="object" 
+                                string="Soumettre" invisible="state!='draft'" 
+                                class="btn-primary"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="Nom de l'ONG"/>
+                            </h1>
+                            <h2>
+                                <field name="campaign_id" options="{'no_create': True}"/>
+                            </h2>
+                        </div>
+                        
+                        <group>
+                            <group string="Informations de Contact">
+                                <field name="email"/>
+                                <field name="phone"/>
+                                <field name="website"/>
+                            </group>
+                            <group string="Score">
+                                <field name="total_score" readonly="1"/>
+                                <field name="submission_date" readonly="1"/>
+                            </group>
+                        </group>
+                        
+                        <notebook>
+                            <page string="Informations Générales">
+                                <group>
+                                    <group string="Adresse">
+                                        <field name="street"/>
+                                        <field name="city"/>
+                                        <field name="country_id"/>
+                                    </group>
+                                    <group string="Statut Légal">
+                                        <field name="registration_number"/>
+                                        <field name="legal_status"/>
+                                    </group>
+                                </group>
+                                
+                                <group string="Domaines d'Activité">
+                                    <field name="activity_domains" widget="many2many_tags"/>
+                                    <field name="main_activities"/>
+                                </group>
+                            </page>
+                            
+                            <page string="Informations Financières">
+                                <group>
+                                    <field name="annual_budget"/>
+                                    <field name="funding_sources"/>
+                                </group>
+                            </page>
+                            
+                            <page string="Ressources Humaines">
+                                <group>
+                                    <field name="staff_count"/>
+                                    <field name="volunteer_count"/>
+                                </group>
+                            </page>
+                            
+                            <page string="Expérience">
+                                <group>
+                                    <field name="years_experience"/>
+                                    <field name="previous_projects"/>
+                                    <field name="references"/>
+                                </group>
+                            </page>
+                            
+                            <page string="Documents">
+                                <group>
+                                    <field name="statute_document" filename="statute_filename"/>
+                                    <field name="certificate_document" filename="certificate_filename"/>
+                                    <field name="financial_report" filename="financial_filename"/>
+                                </group>
+                            </page>
+                            
+                            <page string="Évaluation">
+                                <field name="evaluation_ids">
+                                    <tree editable="bottom">
+                                        <field name="criterion_id"/>
+                                        <field name="score"/>
+                                        <field name="notes"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        
+        <!-- Vue liste candidature -->
+        <record id="view_ong_application_tree" model="ir.ui.view">
+            <field name="name">ong.application.tree</field>
+            <field name="model">ong.application</field>
+            <field name="arch" type="xml">
+                <tree decoration-success="state=='selected'" 
+                      decoration-danger="state=='rejected'"
+                      decoration-warning="state=='under_review'">
+                    <field name="name"/>
+                    <field name="campaign_id"/>
+                    <field name="email"/>
+                    <field name="years_experience"/>
+                    <field name="annual_budget"/>
+                    <field name="total_score"/>
+                    <field name="submission_date"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        
+        <!-- Vue kanban candidature -->
+        <record id="view_ong_application_kanban" model="ir.ui.view">
+            <field name="name">ong.application.kanban</field>
+            <field name="model">ong.application</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="state">
+                    <field name="name"/>
+                    <field name="email"/>
+                    <field name="total_score"/>
+                    <field name="state"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_card">
+                                <div class="oe_kanban_content">
+                                    <div>
+                                        <strong><field name="name"/></strong>
+                                    </div>
+                                    <div>
+                                        <field name="email"/>
+                                    </div>
+                                    <div>
+                                        Score: <field name="total_score"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        
+        <!-- Action candidature -->
+        <record id="action_ong_application" model="ir.actions.act_window">
+            <field name="name">Candidatures ONGs</field>
+            <field name="res_model">ong.application</field>
+            <field name="view_mode">tree,kanban,form</field>
+        </record>
+    </data>
+</odoo>

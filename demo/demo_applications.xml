@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Applications pour la campagne 1 -->
+        <record id="demo_application_1" model="ong.application">
+            <field name="campaign_id" ref="demo_campaign_1"/>
+            <field name="name">Action Solidaire Internationale</field>
+            <field name="email">contact@actionsolidaire.org</field>
+            <field name="phone">+225 20 21 22 23</field>
+            <field name="website">https://www.actionsolidaire.org</field>
+            <field name="street">123 Avenue de la Paix</field>
+            <field name="city">Abidjan</field>
+            <field name="country_id" ref="base.ci"/>
+            <field name="registration_number">ONG-CI-2015-001</field>
+            <field name="legal_status">ong_internationale</field>
+            <field name="main_activities">
+                Nous sommes spécialisés dans l'aide humanitaire d'urgence, la distribution alimentaire, 
+                l'accès à l'eau potable et les programmes de santé communautaire. Nos interventions 
+                couvrent principalement l'Afrique de l'Ouest avec une expertise particulière dans 
+                la logistique humanitaire et la coordination multi-acteurs.
+            </field>
+            <field name="activity_domains" eval="[(6, 0, [
+                ref('domain_humanitarian'),
+                ref('domain_health'),
+                ref('domain_development')
+            ])]"/>
+            <field name="annual_budget">1250000</field>
+            <field name="funding_sources">
+                75% bailleurs institutionnels (Union Européenne, USAID, AFD), 
+                20% fondations privées, 5% dons individuels
+            </field>
+            <field name="staff_count">45</field>
+            <field name="volunteer_count">120</field>
+            <field name="years_experience">12</field>
+            <field name="previous_projects">
+                - Programme d'urgence post-conflit au Mali (2022-2023)
+                - Distribution alimentaire Covid-19 au Burkina Faso (2020-2021)
+                - Projet WASH dans 15 villages ruraux du Sénégal (2019-2020)
+                - Formation agents de santé communautaire Guinée (2018-2019)
+            </field>
+            <field name="references">
+                Dr. Marie Touré, Coordinatrice OCHA Abidjan - marie.toure@un.org
+                Jean-Claude Mbendi, Chef de projet AFD - jc.mbendi@afd.fr
+            </field>
+            <field name="state">submitted</field>
+            <field name="submission_date" eval="(DateTime.now() - timedelta(days=10))"/>
+        </record>
+
+        <record id="demo_application_2" model="ong.application">
+            <field name="campaign_id" ref="demo_campaign_1"/>
+            <field name="name">Espoir et Développement</field>
+            <field name="email">info@espoir-dev.org</field>
+            <field name="phone">+226 25 30 40 50</field>
+            <field name="website">https://www.espoir-developpement.org</field>
+            <field name="street">45 Rue des Nations</field>
+            <field name="city">Ouagadougou</field>
+            <field name="country_id" ref="base.bf"/>
+            <field name="registration_number">ASSO-BF-2018-089</field>
+            <field name="legal_status">association</field>
+            <field name="main_activities">
+                Association locale spécialisée dans le développement communautaire, l'éducation 
+                et l'autonomisation des femmes. Nous travaillons principalement dans les zones 
+                rurales du Burkina Faso avec une approche participative et inclusive.
+            </field>
+            <field name="activity_domains" eval="[(6, 0, [
+                ref('domain_development'),
+                ref('domain_education'),
+                ref('domain_women_children')
+            ])]"/>
+            <field name="annual_budget">350000</field>
+            <field name="funding_sources">
+                40% coopération décentralisée française, 30% ONG internationales, 
+                20% gouvernement local, 10% activités génératrices de revenus
+            </field>
+            <field name="staff_count">18</field>
+            <field name="volunteer_count">85</field>
+            <field name="years_experience">7</field>
+            <field name="previous_projects">
+                - Programme d'alphabétisation fonctionnelle pour 500 femmes (2022-2024)
+                - Construction de 3 écoles primaires avec latrines (2021-2022)
+                - Projet microfinance pour coopératives féminines (2020-2023)
+                - Sensibilisation VIH/SIDA dans 20 villages (2019-2020)
+            </field>
+            <field name="references">
+                Fatou Diallo, Coordinatrice régionale Plan International - f.diallo@plan.org
+                Pierre Konaté, Maire de Koudougou - mairie.koudougou@gov.bf
+            </field>
+            <field name="state">submitted</field>
+            <field name="submission_date" eval="(DateTime.now() - timedelta(days=8))"/>
+        </record>
+
+        <record id="demo_application_3" model="ong.application">
+            <field name="campaign_id" ref="demo_campaign_1"/>
+            <field name="name">Santé Pour Tous</field>
+            <field name="email">contact@santepour-tous.sn</field>
+            <field name="phone">+221 33 824 56 78</field>
+            <field name="website">https://www.santepour-tous.sn</field>
+            <field name="street">28 Avenue Cheikh Anta Diop</field>
+            <field name="city">Dakar</field>
+            <field name="country_id" ref="base.sn"/>
+            <field name="registration_number">ONG-SN-2012-156</field>
+            <field name="legal_status">ong_internationale</field>
+            <field name="main_activities">
+                ONG médicale spécialisée dans les soins de santé primaires, la lutte contre 
+                les maladies tropicales et la formation du personnel de santé. Interventions 
+                dans toute l'Afrique de l'Ouest avec un réseau de cliniques mobiles.
+            </field>
+            <field name="activity_domains" eval="[(6, 0, [
+                ref('domain_health'),
+                ref('domain_humanitarian'),
+                ref('domain_women_children')
+            ])]"/>
+            <field name="annual_budget">2100000</field>
+            <field name="funding_sources">
+                50% Global Fund, 25% fondations médicales, 15% gouvernements, 10% secteur privé
+            </field>
+            <field name="staff_count">78</field>
+            <field name="volunteer_count">45</field>
+            <field name="years_experience">15</field>
+            <field name="previous_projects">
+                - Programme de lutte contre le paludisme au Ghana (2020-2023)
+                - Vaccination Covid-19 dans 5 pays de la région (2021-2022)
+                - Formation sages-femmes traditionnelles Mali/Niger (2019-2021)
+                - Cliniques mobiles zones reculées Guinée-Bissau (2018-2020)
+            </field>
+            <field name="references">
+                Dr. Amadou Ba, Directeur CEDEAO Santé - a.ba@ecowas.int
+                Sarah Johnson, Program Officer Gates Foundation - s.johnson@gatesfoundation.org
+            </field>
+            <field name="state">submitted</field>
+            <field name="submission_date" eval="(DateTime.now() - timedelta(days=12))"/>
+        </record>
+
+        <record id="demo_application_4" model="ong.application">
+            <field name="campaign_id" ref="demo_campaign_1"/>
+            <field name="name">Jeunesse et Avenir</field>
+            <field name="email">direction@jeunesse-avenir.org</field>
+            <field name="phone">+223 20 22 45 67</field>
+            <field name="street">67 Boulevard du Mali</field>
+            <field name="city">Bamako</field>
+            <field name="country_id" ref="base.ml"/>
+            <field name="registration_number">ASSO-ML-2020-234</field>
+            <field name="legal_status">association</field>
+            <field name="main_activities">
+                Association de jeunes engagés dans l'éducation, la formation professionnelle 
+                et l'insertion socio-économique des jeunes défavorisés. Programmes innovants 
+                utilisant les nouvelles technologies.
+            </field>
+            <field name="activity_domains" eval="[(6, 0, [
+                ref('domain_education'),
+                ref('domain_development')
+            ])]"/>
+            <field name="annual_budget">180000</field>
+            <field name="funding_sources">
+                60% coopération internationale, 25% partenariats privés, 15% activités propres
+            </field>
+            <field name="staff_count">12</field>
+            <field name="volunteer_count">150</field>
+            <field name="years_experience">4</field>
+            <field name="previous_projects">
+                - Centre de formation numérique pour 200 jeunes (2022-2024)
+                - Programme d'insertion professionnelle post-conflit (2021-2023)
+                - Sensibilisation citoyenneté démocratique (2020-2022)
+            </field>
+            <field name="references">
+                Moussa Traoré, Directeur Jeunesse Mali - m.traore@gov.ml
+                Lisa Martinez, UNICEF Mali - l.martinez@unicef.org
+            </field>
+            <field name="state">submitted</field>
+            <field name="submission_date" eval="(DateTime.now() - timedelta(days=5))"/>
+        </record>
+
+        <!-- Applications pour la campagne 2 (Éducation) -->
+        <record id="demo_application_5" model="ong.application">
+            <field name="campaign_id" ref="demo_campaign_2"/>
+            <field name="name">Éducation Sans Frontières</field>
+            <field name="email">coordination@educationsf.org</field>
+            <field name="phone">+233 30 277 3456</field>
+            <field name="website">https://www.education-sans-frontieres.org</field>
+            <field name="street">15 Liberation Road</field>
+            <field name="city">Accra</field>
+            <field name="country_id" ref="base.gh"/>
+            <field name="registration_number">NGO-GH-2014-078</field>
+            <field name="legal_status">ong_internationale</field>
+            <field name="main_activities">
+                ONG spécialisée exclusivement dans l'éducation : construction d'écoles, 
+                formation d'enseignants, développement de programmes pédagogiques adaptés 
+                aux contextes locaux, promotion de l'éducation des filles.
+            </field>
+            <field name="activity_domains" eval="[(6, 0, [
+                ref('domain_education'),
+                ref('domain_women_children')
+            ])]"/>
+            <field name="annual_budget">1800000</field>
+            <field name="funding_sources">
+                40% Education Cannot Wait, 30% GPE, 20% fondations, 10% gouvernements
+            </field>
+            <field name="staff_count">65</field>
+            <field name="volunteer_count">200</field>
+            <field name="years_experience">11</field>
+            <field name="previous_projects">
+                - Construction de 25 écoles primaires au Ghana (2020-2023)
+                - Formation de 500 enseignants au Togo (2021-2024)
+                - Programme "Filles à l'école" Burkina Faso (2019-2022)
+                - Développement manuel pédagogique multilingue (2018-2020)
+            </field>
+            <field name="references">
+                Prof. Kwame Asante, Université de Cape Coast - k.asante@ucc.edu.gh
+                Maria Santos, UNESCO Dakar - m.santos@unesco.org
+            </field>
+            <field name="state">submitted</field>
+            <field name="submission_date" eval="(DateTime.now() - timedelta(days=3))"/>
+        </record>
+
+        <record id="demo_application_6" model="ong.application">
+            <field name="campaign_id" ref="demo_campaign_2"/>
+            <field name="name">Savoir et Solidarité</field>
+            <field name="email">admin@savoir-solidarite.tg</field>
+            <field name="phone">+228 22 61 45 78</field>
+            <field name="street">89 Avenue de la Libération</field>
+            <field name="city">Lomé</field>
+            <field name="country_id" ref="base.tg"/>
+            <field name="registration_number">ONG-TG-2017-045</field>
+            <field name="legal_status">association</field>
+            <field name="main_activities">
+                Association togolaise dédiée à l'alphabétisation des adultes et à l'éducation 
+                non formelle. Expertise reconnue dans l'adaptation des programmes éducatifs 
+                aux langues locales et aux besoins communautaires.
+            </field>
+            <field name="activity_domains" eval="[(6, 0, [
+                ref('domain_education')
+            ])]"/>
+            <field name="annual_budget">420000</field>
+            <field name="funding_sources">
+                50% coopération bilatérale, 30% ONG internationales partenaires, 20% État togolais
+            </field>
+            <field name="staff_count">28</field>
+            <field name="volunteer_count">95</field>
+            <field name="years_experience">8</field>
+            <field name="previous_projects">
+                - Alphabétisation de 1200 femmes rurales (2021-2024)
+                - Formation d'alphabétiseurs communautaires (2020-2023)
+                - Programme éducation civique et sanitaire (2019-2021)
+                - Développement matériel pédagogique en Ewé (2018-2020)
+            </field>
+            <field name="references">
+                Dr. Kossi Adjovi, Ministère Éducation Togo - k.adjovi@education.gov.tg
+                Rachel Green, Save the Children Togo - r.green@savechildren.org
+            </field>
+            <field name="state">submitted</field>
+            <field name="submission_date" eval="(DateTime.now() - timedelta(days=1))"/>
+        </record>
+
+        <!-- Applications pour la campagne 3 (fermée) - avec statuts finaux -->
+        <record id="demo_application_7" model="ong.application">
+            <field name="campaign_id" ref="demo_campaign_3"/>
+            <field name="name">Maternité Sans Risque</field>
+            <field name="email">direction@maternitesansrisque.org</field>
+            <field name="phone">+227 20 73 45 67</field>
+            <field name="street">12 Avenue de la République</field>
+            <field name="city">Niamey</field>
+            <field name="country_id" ref="base.ne"/>
+            <field name="registration_number">ONG-NE-2013-089</field>
+            <field name="legal_status">ong_internationale</field>
+            <field name="main_activities">
+                ONG spécialisée dans la santé maternelle et infantile avec une expertise 
+                unique dans la formation des sages-femmes et l'équipement des maternités.
+                Nous intervenons dans toute l'Afrique de l'Ouest pour réduire la mortalité 
+                maternelle et améliorer l'accès aux soins obstétricaux d'urgence.
+            </field>
+            <field name="activity_domains" eval="[(6, 0, [
+                ref('domain_health'),
+                ref('domain_women_children')
+            ])]"/>
+            <field name="annual_budget">1650000</field>
+            <field name="funding_sources">
+                45% UNFPA, 25% OMS, 20% fondations privées, 10% gouvernements locaux
+            </field>
+            <field name="staff_count">55</field>
+            <field name="volunteer_count">75</field>
+            <field name="years_experience">13</field>
+            <field name="previous_projects">
+                - Programme santé maternelle Niger et Mali (2021-2024)
+                - Formation 300 sages-femmes Sahel (2020-2022)
+                - Équipement 15 maternités rurales (2019-2021)
+                - Campagne sensibilisation planning familial (2018-2020)
+            </field>
+            <field name="references">
+                Dr. Aïcha Maïga, UNFPA Niger - a.maiga@unfpa.org
+                Prof. Ibrahim Sall, Faculté Médecine Niamey - i.sall@uam.edu.ne
+            </field>
+            <field name="state">selected</field>
+            <field name="submission_date" eval="(DateTime.now() - timedelta(days=100))"/>
+        </record>
+
+        <record id="demo_application_8" model="ong.application">
+            <field name="campaign_id" ref="demo_campaign_3"/>
+            <field name="name">Femmes et Santé Guinée</field>
+            <field name="email">contact@femmessante.gn</field>
+            <field name="phone">+224 30 41 52 63</field>
+            <field name="street">34 Avenue de la République</field>
+            <field name="city">Conakry</field>
+            <field name="country_id" ref="base.gn"/>
+            <field name="registration_number">ASSO-GN-2016-123</field>
+            <field name="legal_status">association</field>
+            <field name="main_activities">
+                Association guinéenne dédiée à la promotion de la santé reproductive 
+                des femmes et à l'amélioration de l'accès aux soins gynéco-obstétricaux. 
+                Nos programmes incluent la formation des matrones traditionnelles et 
+                la sensibilisation sur la planification familiale.
+            </field>
+            <field name="activity_domains" eval="[(6, 0, [ref('domain_health'), ref('domain_women_children')])]"/>
+            <field name="annual_budget">280000</field>
+            <field name="funding_sources">
+                50% coopération française, 30% UNFPA, 20% État guinéen
+            </field>
+            <field name="staff_count">22</field>
+            <field name="volunteer_count">60</field>
+            <field name="years_experience">9</field>
+            <field name="previous_projects">
+                - Formation 150 matrones traditionnelles (2020-2023)
+                - Sensibilisation planning familial 50 villages (2019-2022)
+                - Construction 2 centres de santé reproductive (2018-2021)
+            </field>
+            <field name="references">
+                Dr. Fatou Camara, Ministère Santé Guinée - f.camara@sante.gov.gn
+                Marie Dupont, AFD Conakry - m.dupont@afd.fr
+            </field>
+            <field name="state">selected</field>
+            <field name="submission_date" eval="(DateTime.now() - timedelta(days=95))"/>
+        </record>
+
+        <record id="demo_application_9" model="ong.application">
+            <field name="campaign_id" ref="demo_campaign_3"/>
+            <field name="name">Alliance Santé Communautaire</field>
+            <field name="email">info@alliancesante.lr</field>
+            <field name="phone">+231 77 123 456</field>
+            <field name="street">45 Tubman Boulevard</field>
+            <field name="city">Monrovia</field>
+            <field name="country_id" ref="base.lr"/>
+            <field name="registration_number">NGO-LR-2019-067</field>
+            <field name="legal_status">ong_internationale</field>
+            <field name="main_activities">
+                ONG internationale spécialisée dans le renforcement des systèmes de santé 
+                communautaire en Afrique de l'Ouest. Nos programmes incluent la formation 
+                d'agents de santé communautaire, l'équipement de centres de santé et 
+                la promotion de la santé préventive.
+            </field>
+            <field name="activity_domains" eval="[(6, 0, [ref('domain_health')])]"/>
+            <field name="annual_budget">890000</field>
+            <field name="funding_sources">
+                40% USAID, 30% Banque Mondiale, 20% fondations, 10% secteur privé
+            </field>
+            <field name="staff_count">35</field>
+            <field name="volunteer_count">40</field>
+            <field name="years_experience">6</field>
+            <field name="previous_projects">
+                - Renforcement système santé post-Ebola (2019-2022)
+                - Formation 200 agents de santé communautaire (2020-2023)
+                - Équipement 12 centres de santé ruraux (2021-2024)
+            </field>
+            <field name="references">
+                Dr. James Wilson, USAID Liberia - j.wilson@usaid.gov
+                Rebecca Clark, WHO Liberia - r.clark@who.int
+            </field>
+            <field name="state">selected</field>
+            <field name="submission_date" eval="(DateTime.now() - timedelta(days=88))"/>
+        </record>
+
+        <record id="demo_application_10" model="ong.application">
+            <field name="campaign_id" ref="demo_campaign_3"/>
+            <field name="name">Soins Primaires Ruraux</field>
+            <field name="email">coordination@soinsruraux.sl</field>
+            <field name="phone">+232 22 456 789</field>
+            <field name="street">23 Siaka Stevens Street</field>
+            <field name="city">Freetown</field>
+            <field name="country_id" ref="base.sl"/>
+            <field name="registration_number">NGO-SL-2020-234</field>
+            <field name="legal_status">association</field>
+            <field name="main_activities">
+                Association sierra-léonaise axée sur l'amélioration de l'accès aux soins 
+                de santé primaires dans les zones rurales. Nos interventions incluent 
+                les cliniques mobiles, la formation d'auxiliaires de santé et la 
+                sensibilisation aux bonnes pratiques d'hygiène.
+            </field>
+            <field name="activity_domains" eval="[(6, 0, [ref('domain_health')])]"/>
+            <field name="annual_budget">150000</field>
+            <field name="funding_sources">
+                60% partenaires internationaux, 25% gouvernement, 15% communautés locales
+            </field>
+            <field name="staff_count">15</field>
+            <field name="volunteer_count">80</field>
+            <field name="years_experience">5</field>
+            <field name="previous_projects">
+                - Cliniques mobiles dans 30 villages isolés (2020-2023)
+                - Formation 80 auxiliaires de santé (2019-2022)
+                - Campagne vaccination enfants (2021-2022)
+            </field>
+            <field name="references">
+                Dr. Mohamed Sesay, Ministère Santé SL - m.sesay@health.gov.sl
+                Anna Thompson, Partners in Health - a.thompson@pih.org
+            </field>
+            <field name="state">rejected</field>
+            <field name="submission_date" eval="(DateTime.now() - timedelta(days=92))"/>
+        </record>
+
+        <!-- Candidature en brouillon -->
+        <record id="demo_application_11" model="ong.application">
+            <field name="campaign_id" ref="demo_campaign_1"/>
+            <field name="name">Développement Intégré</field>
+            <field name="email">contact@dev-integre.org</field>
+            <field name="registration_number">ONG-ML-2021-456</field>
+            <field name="legal_status">association</field>
+            <field name="main_activities">
+                Association malienne en cours de développement, spécialisée dans le 
+                développement rural intégré et l'autonomisation des communautés locales. 
+                Candidature en cours de finalisation pour le programme d'aide humanitaire.
+            </field>
+            <field name="activity_domains" eval="[(6, 0, [
+                ref('domain_development'),
+                ref('domain_humanitarian')
+            ])]"/>
+            <field name="annual_budget">120000</field>
+            <field name="funding_sources">
+                En cours de définition - recherche de financements
+            </field>
+            <field name="staff_count">8</field>
+            <field name="volunteer_count">25</field>
+            <field name="years_experience">3</field>
+            <field name="state">draft</field>
+        </record>
+    </data>
+</odoo>

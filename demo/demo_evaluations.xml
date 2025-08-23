@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Évaluations pour Action Solidaire Internationale -->
+        <record id="eval_1_experience" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_1"/>
+            <field name="criterion_id" ref="criteria_experience"/>
+            <field name="score">22.5</field>
+            <field name="notes">12 années d'expérience = score élevé</field>
+        </record>
+        
+        <record id="eval_1_budget" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_1"/>
+            <field name="criterion_id" ref="criteria_budget"/>
+            <field name="score">20.0</field>
+            <field name="notes">Budget > 1M€ = score maximum</field>
+        </record>
+        
+        <record id="eval_1_staff" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_1"/>
+            <field name="criterion_id" ref="criteria_staff"/>
+            <field name="score">15.0</field>
+            <field name="notes">165 personnes total = score maximum</field>
+        </record>
+        
+        <record id="eval_1_documents" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_1"/>
+            <field name="criterion_id" ref="criteria_documents"/>
+            <field name="score">13.3</field>
+            <field name="notes">2/3 documents fournis</field>
+        </record>
+        
+        <record id="eval_1_completeness" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_1"/>
+            <field name="criterion_id" ref="criteria_completeness"/>
+            <field name="score">18.7</field>
+            <field name="notes">Dossier très complet</field>
+        </record>
+        
+        <!-- Évaluations pour Espoir et Développement -->
+        <record id="eval_2_experience" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_2"/>
+            <field name="criterion_id" ref="criteria_experience"/>
+            <field name="score">17.5</field>
+            <field name="notes">7 années d'expérience = score bon</field>
+        </record>
+        
+        <record id="eval_2_budget" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_2"/>
+            <field name="criterion_id" ref="criteria_budget"/>
+            <field name="score">12.0</field>
+            <field name="notes">Budget moyen 350k€</field>
+        </record>
+        
+        <record id="eval_2_staff" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_2"/>
+            <field name="criterion_id" ref="criteria_staff"/>
+            <field name="score">15.0</field>
+            <field name="notes">103 personnes total = score maximum</field>
+        </record>
+        
+        <record id="eval_2_completeness" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_2"/>
+            <field name="criterion_id" ref="criteria_completeness"/>
+            <field name="score">17.3</field>
+            <field name="notes">Dossier bien complet</field>
+        </record>
+        
+        <!-- Évaluations pour Santé Pour Tous -->
+        <record id="eval_3_experience" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_3"/>
+            <field name="criterion_id" ref="criteria_experience"/>
+            <field name="score">25.0</field>
+            <field name="notes">15 années d'expérience = score maximum</field>
+        </record>
+        
+        <record id="eval_3_budget" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_3"/>
+            <field name="criterion_id" ref="criteria_budget"/>
+            <field name="score">20.0</field>
+            <field name="notes">Budget > 2M€ = score maximum</field>
+        </record>
+        
+        <record id="eval_3_staff" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_3"/>
+            <field name="criterion_id" ref="criteria_staff"/>
+            <field name="score">15.0</field>
+            <field name="notes">123 personnes total = score maximum</field>
+        </record>
+        
+        <record id="eval_3_completeness" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_3"/>
+            <field name="criterion_id" ref="criteria_completeness"/>
+            <field name="score">19.3</field>
+            <field name="notes">Dossier excellent</field>
+        </record>
+        
+        <!-- Évaluations pour Jeunesse et Avenir -->
+        <record id="eval_4_experience" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_4"/>
+            <field name="criterion_id" ref="criteria_experience"/>
+            <field name="score">10.0</field>
+            <field name="notes">4 années d'expérience = score moyen</field>
+        </record>
+        
+        <record id="eval_4_budget" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_4"/>
+            <field name="criterion_id" ref="criteria_budget"/>
+            <field name="score">8.0</field>
+            <field name="notes">Budget limité 180k€</field>
+        </record>
+        
+        <record id="eval_4_staff" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_4"/>
+            <field name="criterion_id" ref="criteria_staff"/>
+            <field name="score">15.0</field>
+            <field name="notes">162 personnes total = score maximum</field>
+        </record>
+        
+        <record id="eval_4_completeness" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_4"/>
+            <field name="criterion_id" ref="criteria_completeness"/>
+            <field name="score">16.0</field>
+            <field name="notes">Dossier correct</field>
+        </record>
+        
+        <!-- Évaluations pour Éducation Sans Frontières -->
+        <record id="eval_5_experience" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_5"/>
+            <field name="criterion_id" ref="criteria_experience"/>
+            <field name="score">23.0</field>
+            <field name="notes">11 années d'expérience = score élevé</field>
+        </record>
+        
+        <record id="eval_5_budget" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_5"/>
+            <field name="criterion_id" ref="criteria_budget"/>
+            <field name="score">20.0</field>
+            <field name="notes">Budget 1.8M€ = score maximum</field>
+        </record>
+        
+        <record id="eval_5_staff" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_5"/>
+            <field name="criterion_id" ref="criteria_staff"/>
+            <field name="score">15.0</field>
+            <field name="notes">265 personnes total = score maximum</field>
+        </record>
+        
+        <record id="eval_5_completeness" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_5"/>
+            <field name="criterion_id" ref="criteria_completeness"/>
+            <field name="score">18.5</field>
+            <field name="notes">Dossier très bien documenté</field>
+        </record>
+        
+        <!-- Évaluations pour Savoir et Solidarité -->
+        <record id="eval_6_experience" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_6"/>
+            <field name="criterion_id" ref="criteria_experience"/>
+            <field name="score">17.5</field>
+            <field name="notes">8 années d'expérience = score bon</field>
+        </record>
+        
+        <record id="eval_6_budget" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_6"/>
+            <field name="criterion_id" ref="criteria_budget"/>
+            <field name="score">12.0</field>
+            <field name="notes">Budget 420k€ = score moyen</field>
+        </record>
+        
+        <record id="eval_6_staff" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_6"/>
+            <field name="criterion_id" ref="criteria_staff"/>
+            <field name="score">15.0</field>
+            <field name="notes">123 personnes total = score maximum</field>
+        </record>
+        
+        <record id="eval_6_completeness" model="ong.application.evaluation">
+            <field name="application_id" ref="demo_application_6"/>
+            <field name="criterion_id" ref="criteria_completeness"/>
+            <field name="score">17.0</field>
+            <field name="notes">Dossier bien structuré</field>
+        </record>
+        
+        <!-- Mise à jour des scores totaux via fonction -->
+        <function model="ong.application" name="_compute_total_score">
+            <value eval="[ref('demo_application_1'), ref('demo_application_2'), ref('demo_application_3'), ref('demo_application_4'), ref('demo_application_5'), ref('demo_application_6'), ref('demo_application_7'), ref('demo_application_8'), ref('demo_application_9'), ref('demo_application_10')]"/>
+        </function>
+    </data>
+</odoo>

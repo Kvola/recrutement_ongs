@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Menu principal -->
+        <menuitem id="menu_ong_recruitment_root"
+                  name="Recrutement ONGs"
+                  sequence="10"/>
+        
+        <!-- Sous-menus -->
+        <menuitem id="menu_ong_recruitment_campaigns"
+                  name="Campagnes"
+                  parent="menu_ong_recruitment_root"
+                  action="action_ong_recruitment_campaign"
+                  sequence="10"/>
+        
+        <menuitem id="menu_ong_applications"
+                  name="Candidatures"
+                  parent="menu_ong_recruitment_root"
+                  action="action_ong_application"
+                  sequence="20"/>
+        
+        <menuitem id="menu_ong_evaluation_criteria"
+                  name="Critères d'Évaluation"
+                  parent="menu_ong_recruitment_root"
+                  action="action_ong_evaluation_criteria"
+                  sequence="30"/>
+        
+        <menuitem id="menu_ong_activity_domains"
+                  name="Domaines d'Activité"
+                  parent="menu_ong_recruitment_root"
+                  action="action_ong_activity_domain"
+                  sequence="40"/>
+    </data>
+</odoo>

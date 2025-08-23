@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Domaines d'activité standards pour les ONGs -->
+        <record id="domain_education" model="ong.activity.domain">
+            <field name="name">Éducation</field>
+            <field name="description">Programmes éducatifs, formation, alphabétisation</field>
+        </record>
+        
+        <record id="domain_health" model="ong.activity.domain">
+            <field name="name">Santé</field>
+            <field name="description">Soins de santé, prévention, santé publique</field>
+        </record>
+        
+        <record id="domain_environment" model="ong.activity.domain">
+            <field name="name">Environnement</field>
+            <field name="description">Protection environnementale, développement durable</field>
+        </record>
+        
+        <record id="domain_humanitarian" model="ong.activity.domain">
+            <field name="name">Aide Humanitaire</field>
+            <field name="description">Secours d'urgence, aide aux réfugiés</field>
+        </record>
+        
+        <record id="domain_development" model="ong.activity.domain">
+            <field name="name">Développement Communautaire</field>
+            <field name="description">Développement économique local, microfinance</field>
+        </record>
+        
+        <record id="domain_human_rights" model="ong.activity.domain">
+            <field name="name">Droits Humains</field>
+            <field name="description">Protection des droits, plaidoyer</field>
+        </record>
+        
+        <record id="domain_women_children" model="ong.activity.domain">
+            <field name="name">Femmes et Enfants</field>
+            <field name="description">Protection et autonomisation des femmes et enfants</field>
+        </record>
+    </data>
+</odoo>

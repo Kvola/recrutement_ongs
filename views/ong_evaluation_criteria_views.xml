@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vue formulaire critère -->
+        <record id="view_ong_evaluation_criteria_form" model="ir.ui.view">
+            <field name="name">ong.evaluation.criteria.form</field>
+            <field name="model">ong.evaluation.criteria</field>
+            <field name="arch" type="xml">
+                <form string="Critère d'Évaluation">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="code"/>
+                                <field name="sequence"/>
+                            </group>
+                            <group>
+                                <field name="max_score"/>
+                                <field name="weight"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                        <field name="description"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <!-- Vue liste critère -->
+        <record id="view_ong_evaluation_criteria_tree" model="ir.ui.view">
+            <field name="name">ong.evaluation.criteria.tree</field>
+            <field name="model">ong.evaluation.criteria</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="max_score"/>
+                    <field name="weight"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+        
+        <!-- Action critère -->
+        <record id="action_ong_evaluation_criteria" model="ir.actions.act_window">
+            <field name="name">Critères d'Évaluation</field>
+            <field name="res_model">ong.evaluation.criteria</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        
+        <!-- Vue formulaire domaine d'activité -->
+        <record id="view_ong_activity_domain_form" model="ir.ui.view">
+            <field name="name">ong.activity.domain.form</field>
+            <field name="model">ong.activity.domain</field>
+            <field name="arch" type="xml">
+                <form string="Domaine d'Activité">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="active"/>
+                        </group>
+                        <field name="description"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <!-- Vue liste domaine d'activité -->
+        <record id="view_ong_activity_domain_tree" model="ir.ui.view">
+            <field name="name">ong.activity.domain.tree</field>
+            <field name="model">ong.activity.domain</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="name"/>
+                    <field name="description"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+        
+        <!-- Action domaine d'activité -->
+        <record id="action_ong_activity_domain" model="ir.actions.act_window">
+            <field name="name">Domaines d'Activité</field>
+            <field name="res_model">ong.activity.domain</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

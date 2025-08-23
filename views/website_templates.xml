@@ -1,0 +1,1535 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Menus et Actions -->
+        <record id="ngo_recruitment_website_menu" model="website.menu">
+            <field name="name">Recrutement ONGs</field>
+            <field name="url">/ong-recruitment</field>
+            <field name="parent_id" ref="website.main_menu" />
+            <field name="sequence">50</field>
+        </record>
+        <!-- Template pour la liste des campagnes -->
+        <!-- Template pour la liste des campagnes - Version améliorée -->
+        <template id="campaign_list" name="Liste des Campagnes">
+            <t t-call="website.layout">
+                <div id="wrap" class="oe_structure">
+                    <!-- Section Hero -->
+                    <section class="s_banner pt-5 pb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="container">
+                            <div class="row align-items-center text-center text-white">
+                                <div class="col-lg-12">
+                                    <h1 class="display-4 fw-bold mb-3">
+                                        <i class="fa fa-handshake-o me-3"></i>
+                                        Opportunités de Partenariat ONG
+                                    </h1>
+                                    <p class="lead mb-4">
+                                        Rejoignez notre réseau d'organisations non gouvernementales 
+                                        et participez à des projets d'impact social
+                                    </p>
+                                    <div class="row text-center mt-4">
+                                        <div class="col-md-4">
+                                            <div class="p-3">
+                                                <i class="fa fa-globe fa-3x mb-2"></i>
+                                                <h5>Impact Global</h5>
+                                                <p class="small">Projets dans plus de 50 pays</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-3">
+                                                <i class="fa fa-users fa-3x mb-2"></i>
+                                                <h5>Réseau Solide</h5>
+                                                <p class="small">Plus de 200 ONGs partenaires</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-3">
+                                                <i class="fa fa-heart fa-3x mb-2"></i>
+                                                <h5>Mission Commune</h5>
+                                                <p class="small">Transformer des vies ensemble</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section des campagnes -->
+                    <section class="pt-5 pb-5 bg-light">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <!-- Filtres et recherche -->
+                                    <div class="row mb-4">
+                                        <div class="col-md-8">
+                                            <h2 class="h3 mb-0">
+                                                <i class="fa fa-bullhorn text-primary me-2"></i>
+                                                Campagnes Actives
+                                            </h2>
+                                            <p class="text-muted">Découvrez les opportunités de collaboration</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="fa fa-search"></i>
+                                                </span>
+                                                <input type="text" class="form-control" 
+                                                    placeholder="Rechercher une campagne..."
+                                                    id="searchCampaigns"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <t t-if="campaigns">
+                                        <div class="row g-4" id="campaignsList">
+                                            <t t-foreach="campaigns" t-as="campaign">
+                                                <div class="col-lg-6 col-xl-4 campaign-item" 
+                                                    t-att-data-name="campaign.name.lower()">
+                                                    <div class="card h-100 shadow-sm border-0 campaign-card">
+                                                        <!-- Badge de statut -->
+                                                        <div class="position-absolute top-0 end-0 m-3">
+                                                            <t t-if="campaign.state == 'open'">
+                                                                <span class="badge bg-success">
+                                                                    <i class="fa fa-check-circle me-1"></i>Ouvert
+                                                                </span>
+                                                            </t>
+                                                            <t t-elif="campaign.state == 'evaluation'">
+                                                                <span class="badge bg-warning">
+                                                                    <i class="fa fa-clock-o me-1"></i>Évaluation
+                                                                </span>
+                                                            </t>
+                                                            <t t-elif="campaign.state == 'closed'">
+                                                                <span class="badge bg-secondary">
+                                                                    <i class="fa fa-lock me-1"></i>Fermé
+                                                                </span>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <span class="badge bg-light text-dark">
+                                                                    <i class="fa fa-edit me-1"></i>Brouillon
+                                                                </span>
+                                                            </t>
+                                                        </div>
+
+                                                        <!-- En-tête de la carte -->
+                                                        <div class="card-header bg-primary text-white border-0">
+                                                            <h5 class="card-title mb-0 pe-5">
+                                                                <i class="fa fa-flag me-2"></i>
+                                                                <t t-esc="campaign.name"/>
+                                                            </h5>
+                                                        </div>
+
+                                                        <div class="card-body">
+                                                            <!-- Description avec texte propre -->
+                                                            <div class="mb-3">
+                                                                <t t-if="campaign.description_text">
+                                                                    <p class="card-text text-muted description-preview">
+                                                                        <t t-esc="campaign.get_description_preview(150)"/>
+                                                                    </p>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <p class="card-text text-muted fst-italic">
+                                                                        Description non disponible
+                                                                    </p>
+                                                                </t>
+                                                            </div>
+
+                                                            <!-- Informations clés -->
+                                                            <div class="row g-2 mb-3">
+                                                                <div class="col-6">
+                                                                    <div class="d-flex align-items-center">
+                                                                        <i class="fa fa-calendar text-primary me-2"></i>
+                                                                        <div>
+                                                                            <small class="text-muted d-block">Date limite</small>
+                                                                            <strong class="small">
+                                                                                <t t-esc="campaign.end_date.strftime('%d/%m/%Y')"/>
+                                                                            </strong>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <div class="d-flex align-items-center">
+                                                                        <i class="fa fa-users text-primary me-2"></i>
+                                                                        <div>
+                                                                            <small class="text-muted d-block">Places</small>
+                                                                            <strong class="small">
+                                                                                <t t-esc="campaign.max_selections"/> positions
+                                                                            </strong>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Barre de progression -->
+                                                            <div class="mb-3">
+                                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                    <small class="text-muted">Candidatures</small>
+                                                                    <small class="text-muted">
+                                                                        <t t-esc="campaign.total_applications"/> / 
+                                                                        <t t-esc="campaign.max_selections * 3"/> max
+                                                                    </small>
+                                                                </div>
+                                                                <div class="progress" style="height: 8px;">
+                                                                    <div class="progress-bar bg-primary" 
+                                                                        t-att-style="'width: ' + str(min(100, (campaign.total_applications / (campaign.max_selections * 3)) * 100 if campaign.max_selections > 0 else 0)) + '%'">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Critères d'évaluation -->
+                                                            <t t-if="campaign.criteria_ids">
+                                                                <div class="mb-3">
+                                                                    <small class="text-muted d-block mb-1">
+                                                                        <i class="fa fa-check-square-o me-1"></i>
+                                                                        Critères d'évaluation
+                                                                    </small>
+                                                                    <div class="d-flex flex-wrap gap-1">
+                                                                        <t t-foreach="campaign.criteria_ids[:3]" t-as="criteria">
+                                                                            <span class="badge bg-light text-dark small">
+                                                                                <t t-esc="criteria.name"/>
+                                                                            </span>
+                                                                        </t>
+                                                                        <t t-if="len(campaign.criteria_ids) > 3">
+                                                                            <span class="badge bg-light text-muted small">
+                                                                                +<t t-esc="len(campaign.criteria_ids) - 3"/> autres
+                                                                            </span>
+                                                                        </t>
+                                                                    </div>
+                                                                </div>
+                                                            </t>
+
+                                                            <!-- Urgence -->
+                                                            <t t-if="(campaign.end_date - datetime.datetime.now()).days &lt;= 7 and campaign.state == 'open'">
+                                                                <div class="alert alert-warning alert-sm py-2 mb-0">
+                                                                    <i class="fa fa-exclamation-triangle me-1"></i>
+                                                                    <strong>Urgent :</strong> 
+                                                                    Plus que <t t-esc="(campaign.end_date - datetime.datetime.now()).days"/> jours !
+                                                                </div>
+                                                            </t>
+                                                        </div>
+
+                                                        <!-- Pied de carte -->
+                                                        <div class="card-footer bg-transparent border-0 pt-0">
+                                                            <div class="d-grid gap-2">
+                                                                <t t-if="campaign.state == 'open'">
+                                                                    <a t-attf-href="/ong-recruitment/campaign/{{ campaign.id }}" 
+                                                                    class="btn btn-primary">
+                                                                        <i class="fa fa-arrow-right me-2"></i>
+                                                                        Postuler maintenant
+                                                                    </a>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <a t-attf-href="/ong-recruitment/campaign/{{ campaign.id }}" 
+                                                                    class="btn btn-outline-secondary">
+                                                                        <i class="fa fa-eye me-2"></i>
+                                                                        Voir les détails
+                                                                    </a>
+                                                                </t>
+                                                            </div>
+                                                            
+                                                            <!-- Actions secondaires -->
+                                                            <div class="d-flex justify-content-between mt-2">
+                                                                <button class="btn btn-sm btn-outline-primary" 
+                                                                        onclick="shareCampaign(this)" 
+                                                                        t-att-data-url="'/ong-recruitment/campaign/' + str(campaign.id)"
+                                                                        t-att-data-title="campaign.name">
+                                                                    <i class="fa fa-share-alt"></i>
+                                                                </button>
+                                                                <button class="btn btn-sm btn-outline-secondary" 
+                                                                        onclick="toggleFavorite(this)"
+                                                                        t-att-data-campaign-id="campaign.id">
+                                                                    <i class="fa fa-heart-o"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </div>
+
+                                        <!-- Pagination si nécessaire -->
+                                        <t t-if="len(campaigns) > 12">
+                                            <nav class="mt-5">
+                                                <ul class="pagination justify-content-center">
+                                                    <!-- Pagination logic here -->
+                                                </ul>
+                                            </nav>
+                                        </t>
+
+                                    </t>
+                                    <t t-else="">
+                                        <!-- État vide -->
+                                        <div class="text-center py-5">
+                                            <div class="mb-4">
+                                                <i class="fa fa-search fa-4x text-muted"></i>
+                                            </div>
+                                            <h4 class="text-muted">Aucune campagne ouverte actuellement</h4>
+                                            <p class="lead text-muted mb-4">
+                                                Restez connectés ! De nouvelles opportunités arrivent bientôt.
+                                            </p>
+                                            <div class="row justify-content-center">
+                                                <div class="col-md-6">
+                                                    <div class="input-group mb-3">
+                                                        <input type="email" class="form-control" 
+                                                            placeholder="Votre email pour être notifié"/>
+                                                        <button class="btn btn-primary" type="button">
+                                                            <i class="fa fa-bell"></i> M'alerter
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Section CTA -->
+                    <section class="pt-5 pb-5 bg-primary text-white">
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h3 class="mb-2">Vous ne trouvez pas ce que vous cherchez ?</h3>
+                                    <p class="mb-0">
+                                        Contactez-nous pour discuter d'opportunités de partenariat sur mesure.
+                                    </p>
+                                </div>
+                                <div class="col-lg-4 text-lg-end">
+                                    <a href="/contact" class="btn btn-light btn-lg">
+                                        <i class="fa fa-phone me-2"></i>
+                                        Nous contacter
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Scripts JavaScript -->
+                <script>
+                    // Recherche en temps réel
+                    document.getElementById('searchCampaigns').addEventListener('input', function(e) {
+                        const searchTerm = e.target.value.toLowerCase();
+                        const campaigns = document.querySelectorAll('.campaign-item');
+                        
+                        campaigns.forEach(function(campaign) {
+                            const name = campaign.getAttribute('data-name');
+                            const description = campaign.querySelector('.description-preview');
+                            const descriptionText = description ? description.textContent.toLowerCase() : '';
+                            
+                            if (name.includes(searchTerm) || descriptionText.includes(searchTerm)) {
+                                campaign.style.display = 'block';
+                            } else {
+                                campaign.style.display = 'none';
+                            }
+                        });
+                    });
+
+                    // Fonction de partage
+                    function shareCampaign(element) {
+                        const url = window.location.origin + element.getAttribute('data-url');
+                        const title = element.getAttribute('data-title');
+                        
+                        if (navigator.share) {
+                            navigator.share({
+                                title: title,
+                                url: url
+                            });
+                        } else {
+                            navigator.clipboard.writeText(url).then(function() {
+                                alert('Lien copié dans le presse-papiers !');
+                            }).catch(function() {
+                                prompt('Copiez ce lien:', url);
+                            });
+                        }
+                    }
+
+                    // Fonction favoris
+                    function toggleFavorite(element) {
+                        const icon = element.querySelector('i');
+                        if (icon.classList.contains('fa-heart-o')) {
+                            icon.classList.remove('fa-heart-o');
+                            icon.classList.add('fa-heart');
+                            element.classList.add('text-danger');
+                        } else {
+                            icon.classList.remove('fa-heart');
+                            icon.classList.add('fa-heart-o');
+                            element.classList.remove('text-danger');
+                        }
+                    }
+
+                    // Animation au scroll
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.style.opacity = '1';
+                                entry.target.style.transform = 'translateY(0)';
+                            }
+                        });
+                    });
+
+                    document.querySelectorAll('.campaign-card').forEach(card => {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+                        card.style.transition = 'all 0.6s ease';
+                        observer.observe(card);
+                    });
+                </script>
+
+                <!-- CSS personnalisé -->
+                <style>
+                    .campaign-card {
+                        transition: all 0.3s ease;
+                        border-radius: 12px !important;
+                    }
+                    
+                    .campaign-card:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+                    }
+
+                    .description-preview {
+                        line-height: 1.5;
+                        max-height: 4.5em; /* 3 lignes */
+                        overflow: hidden;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 3;
+                        -webkit-box-orient: vertical;
+                    }
+
+                    .progress {
+                        border-radius: 10px;
+                    }
+
+                    .badge {
+                        font-size: 0.75rem;
+                        font-weight: 500;
+                    }
+
+                    .alert-sm {
+                        font-size: 0.875rem;
+                    }
+
+                    .btn-outline-primary:hover,
+                    .btn-outline-secondary:hover {
+                        transform: translateY(-1px);
+                    }
+
+                    @media (max-width: 768px) {
+                        .display-4 {
+                            font-size: 2rem;
+                        }
+                        
+                        .lead {
+                            font-size: 1rem;
+                        }
+                        
+                        .description-preview {
+                            -webkit-line-clamp: 2;
+                            max-height: 3em;
+                        }
+                    }
+                </style>
+            </t>
+        </template>
+
+        <!-- Template pour le détail d'une campagne - Version améliorée -->
+        <template id="campaign_detail" name="Détail de Campagne">
+            <t t-call="website.layout">
+                <div id="wrap">
+                    <!-- Section détail campagne -->
+                    <section class="pt-5 pb-5">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header bg-primary text-white">
+                                            <h1 class="h3 mb-0">
+                                                <i class="fa fa-flag me-2"></i>
+                                                <t t-esc="campaign.name"/>
+                                            </h1>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row mb-4">
+                                                <div class="col-md-6">
+                                                    <h6 class="text-muted">Date de début</h6>
+                                                    <p><t t-esc="campaign.start_date.strftime('%d/%m/%Y à %H:%M')"/></p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h6 class="text-muted">Date de fin</h6>
+                                                    <p><t t-esc="campaign.end_date.strftime('%d/%m/%Y à %H:%M')"/></p>
+                                                </div>
+                                            </div>
+                                            
+                                            <h6 class="text-muted">Description complète</h6>
+                                            <div class="mb-4">
+                                                <t t-if="campaign.description">
+                                                    <!-- Afficher le HTML sécurisé avec formatage préservé -->
+                                                    <div class="campaign-description-content">
+                                                        <t t-raw="campaign.get_description_safe_html()"/>
+                                                    </div>
+                                                </t>
+                                                <t t-else="">
+                                                    <p class="text-muted fst-italic">Aucune description détaillée disponible.</p>
+                                                </t>
+                                            </div>
+
+                                            <t t-if="campaign.criteria_ids">
+                                                <h6 class="text-muted">Critères d'évaluation</h6>
+                                                <ul class="list-group list-group-flush">
+                                                    <t t-foreach="campaign.criteria_ids" t-as="criteria">
+                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                            <span><t t-esc="criteria.name"/></span>
+                                                            <span class="badge bg-success rounded-pill">
+                                                                <t t-esc="criteria.max_score"/>
+                                                            </span>
+                                                        </li>
+                                                    </t>
+                                                </ul>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4">
+                                    <div class="card border-0 shadow-sm">
+                                        <div class="card-header">
+                                            <h5 class="mb-0">Informations clés</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <i class="fa fa-users text-primary me-2"></i>
+                                                <strong><t t-esc="campaign.max_selections"/></strong> positions disponibles
+                                            </div>
+                                            <div class="mb-3">
+                                                <i class="fa fa-file-text text-primary me-2"></i>
+                                                <strong><t t-esc="campaign.total_applications"/></strong> candidatures reçues
+                                            </div>
+                                            <div class="mb-3">
+                                                <i class="fa fa-check-circle text-success me-2"></i>
+                                                <strong><t t-esc="campaign.selected_applications"/></strong> ONGs sélectionnées
+                                            </div>
+                                            
+                                            <hr/>
+                                            
+                                            <t t-if="campaign.state == 'open'">
+                                                <a t-attf-href="/ong-recruitment/apply/{{ campaign.id }}" class="btn btn-primary w-100 mb-2">
+                                                    <i class="fa fa-paper-plane me-2"></i>
+                                                    Soumettre ma candidature
+                                                </a>
+                                            </t>
+                                            <t t-else="">
+                                                <div class="alert alert-info">
+                                                    <i class="fa fa-info-circle me-2"></i>
+                                                    Cette campagne n'accepte plus de candidatures.
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                
+                <!-- CSS pour le formatage de la description -->
+                <style>
+                    .campaign-description-content {
+                        line-height: 1.6;
+                        color: #333;
+                    }
+                    
+                    .campaign-description-content h1,
+                    .campaign-description-content h2,
+                    .campaign-description-content h3,
+                    .campaign-description-content h4,
+                    .campaign-description-content h5,
+                    .campaign-description-content h6 {
+                        margin-top: 1.5rem;
+                        margin-bottom: 1rem;
+                        font-weight: 600;
+                        color: #2c3e50;
+                    }
+                    
+                    .campaign-description-content p {
+                        margin-bottom: 1rem;
+                        text-align: justify;
+                    }
+                    
+                    .campaign-description-content ul,
+                    .campaign-description-content ol {
+                        margin-bottom: 1rem;
+                        padding-left: 2rem;
+                    }
+                    
+                    .campaign-description-content li {
+                        margin-bottom: 0.5rem;
+                    }
+                    
+                    .campaign-description-content blockquote {
+                        border-left: 4px solid #007bff;
+                        padding-left: 1rem;
+                        margin: 1rem 0;
+                        background-color: #f8f9fa;
+                        padding: 1rem;
+                        border-radius: 0.375rem;
+                    }
+                    
+                    .campaign-description-content strong {
+                        color: #2c3e50;
+                    }
+                    
+                    .campaign-description-content em {
+                        color: #6c757d;
+                    }
+                    
+                    .campaign-description-content a {
+                        color: #007bff;
+                        text-decoration: none;
+                    }
+                    
+                    .campaign-description-content a:hover {
+                        text-decoration: underline;
+                    }
+                    
+                    .campaign-description-content img {
+                        max-width: 100%;
+                        height: auto;
+                        border-radius: 0.375rem;
+                        margin: 1rem 0;
+                    }
+                    
+                    .campaign-description-content table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 1rem 0;
+                    }
+                    
+                    .campaign-description-content th,
+                    .campaign-description-content td {
+                        border: 1px solid #dee2e6;
+                        padding: 0.75rem;
+                        text-align: left;
+                    }
+                    
+                    .campaign-description-content th {
+                        background-color: #f8f9fa;
+                        font-weight: 600;
+                    }
+                </style>
+            </t>
+        </template>    
+        
+        <!-- Template pour le formulaire de candidature -->
+        <!-- Template pour le formulaire de candidature amélioré -->
+        <template id="application_form" name="Formulaire de Candidature">
+            <t t-call="website.layout">
+                <div id="wrap">
+                    <!-- Hero Section -->
+                    <section class="bg-primary text-white py-5">
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h1 class="display-4 mb-3">
+                                        <i class="fa fa-paper-plane mr-3"></i>
+                                        Candidature ONG
+                                    </h1>
+                                    <p class="lead mb-0">
+                                        Campagne: <strong><t t-esc="campaign.name"/></strong>
+                                    </p>
+                                </div>
+                                <div class="col-lg-4 text-right">
+                                    <div class="bg-white text-dark p-3 rounded shadow">
+                                        <h6 class="mb-1">Positions disponibles</h6>
+                                        <h3 class="text-primary mb-0">
+                                            <t t-esc="campaign.max_selections"/>
+                                        </h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="container py-5">
+                        <!-- Progress Bar -->
+                        <div class="row mb-5">
+                            <div class="col-12">
+                                <div class="progress mb-3" style="height: 8px;">
+                                    <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" 
+                                         role="progressbar" style="width: 0%" id="formProgress"></div>
+                                </div>
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span><i class="fa fa-info-circle"></i> Informations</span>
+                                    <span><i class="fa fa-euro"></i> Finances</span>
+                                    <span><i class="fa fa-users"></i> Équipe</span>
+                                    <span><i class="fa fa-star"></i> Expérience</span>
+                                    <span><i class="fa fa-file"></i> Documents</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <t t-if="error">
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        <i class="fa fa-exclamation-triangle mr-2"></i>
+                                        <t t-esc="error"/>
+                                        <button type="button" class="close" data-dismiss="alert">
+                                            <span aria-hidden="true">x</span>
+                                        </button>
+                                    </div>
+                                </t>
+                                
+                                <form t-attf-action="/ong-recruitment/apply/{{ campaign.id }}/submit" 
+                                      method="post" enctype="multipart/form-data" id="applicationForm">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    
+                                    <!-- Section 1: Informations générales -->
+                                    <div class="form-section">
+                                        <div class="card border-0 shadow-sm mb-4">
+                                            <div class="card-header bg-gradient-primary text-white">
+                                                <h5 class="mb-0">
+                                                    <i class="fa fa-info-circle mr-2"></i>
+                                                    1. Informations Générales
+                                                </h5>
+                                            </div>
+                                            <div class="card-body p-4">
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group mb-4">
+                                                            <label for="organization_name" class="form-label font-weight-bold">
+                                                                <i class="fa fa-building text-primary mr-2"></i>
+                                                                Nom de l'Organisation *
+                                                            </label>
+                                                            <input type="text" class="form-control form-control-lg" name="organization_name" 
+                                                                   id="organization_name" required="required" 
+                                                                   placeholder="Ex: Association pour le Développement Rural"
+                                                                   t-att-value="form_data.get('organization_name', '')"/>
+                                                            <small class="form-text text-muted">
+                                                                Nom officiel de votre organisation
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group mb-4">
+                                                            <label for="email" class="form-label font-weight-bold">
+                                                                <i class="fa fa-envelope text-primary mr-2"></i>
+                                                                Email de Contact *
+                                                            </label>
+                                                            <input type="email" class="form-control form-control-lg" name="email" 
+                                                                   id="email" required="required" 
+                                                                   placeholder="contact@monong.org"
+                                                                   t-att-value="form_data.get('email', '')"/>
+                                                            <small class="form-text text-muted">
+                                                                Email principal de contact
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-lg-4">
+                                                        <div class="form-group mb-4">
+                                                            <label for="phone" class="form-label font-weight-bold">
+                                                                <i class="fa fa-phone text-primary mr-2"></i>
+                                                                Téléphone
+                                                            </label>
+                                                            <input type="tel" class="form-control form-control-lg" name="phone" 
+                                                                   id="phone" placeholder="+225 XX XX XX XX"
+                                                                   t-att-value="form_data.get('phone', '')"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="form-group mb-4">
+                                                            <label for="website" class="form-label font-weight-bold">
+                                                                <i class="fa fa-globe text-primary mr-2"></i>
+                                                                Site Web
+                                                            </label>
+                                                            <input type="url" class="form-control form-control-lg" name="website" 
+                                                                   id="website" placeholder="https://www.monong.org"
+                                                                   t-att-value="form_data.get('website', '')"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="form-group mb-4">
+                                                            <label for="registration_number" class="form-label font-weight-bold">
+                                                                <i class="fa fa-id-card text-primary mr-2"></i>
+                                                                N° d'Enregistrement *
+                                                            </label>
+                                                            <input type="text" class="form-control form-control-lg" name="registration_number" 
+                                                                   id="registration_number" required="required" 
+                                                                   placeholder="REG123456789"
+                                                                   t-att-value="form_data.get('registration_number', '')"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group mb-4">
+                                                            <label for="legal_status" class="form-label font-weight-bold">
+                                                                <i class="fa fa-gavel text-primary mr-2"></i>
+                                                                Statut Légal *
+                                                            </label>
+                                                            <select class="form-control form-control-lg" name="legal_status" 
+                                                                    id="legal_status" required="required">
+                                                                <option value="">-- Choisir un statut --</option>
+                                                                <option value="association" t-att-selected="'selected' if form_data.get('legal_status') == 'association' else None">Association</option>
+                                                                <option value="fondation" t-att-selected="'selected' if form_data.get('legal_status') == 'fondation' else None">Fondation</option>
+                                                                <option value="ong_internationale" t-att-selected="'selected' if form_data.get('legal_status') == 'ong_internationale' else None">ONG Internationale</option>
+                                                                <option value="autre" t-att-selected="'selected' if form_data.get('legal_status') == 'autre' else None">Autre</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group mb-4">
+                                                            <label for="country_id" class="form-label font-weight-bold">
+                                                                <i class="fa fa-flag text-primary mr-2"></i>
+                                                                Pays
+                                                            </label>
+                                                            <select class="form-control form-control-lg" name="country_id" id="country_id">
+                                                                <option value="">-- Sélectionner un pays --</option>
+                                                                <t t-foreach="countries" t-as="country">
+                                                                    <option t-att-value="country.id" 
+                                                                            t-att-selected="'selected' if str(country.id) == str(form_data.get('country_id', '')) else None">
+                                                                        <t t-esc="country.name"/>
+                                                                    </option>
+                                                                </t>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-lg-8">
+                                                        <div class="form-group mb-4">
+                                                            <label for="street" class="form-label font-weight-bold">
+                                                                <i class="fa fa-map-marker text-primary mr-2"></i>
+                                                                Adresse
+                                                            </label>
+                                                            <input type="text" class="form-control form-control-lg" name="street" 
+                                                                   id="street" placeholder="Rue, avenue, boulevard..."
+                                                                   t-att-value="form_data.get('street', '')"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="form-group mb-4">
+                                                            <label for="city" class="form-label font-weight-bold">
+                                                                <i class="fa fa-building-o text-primary mr-2"></i>
+                                                                Ville
+                                                            </label>
+                                                            <input type="text" class="form-control form-control-lg" name="city" 
+                                                                   id="city" placeholder="Abidjan, Bouaké..."
+                                                                   t-att-value="form_data.get('city', '')"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group mb-4">
+                                                    <label class="form-label font-weight-bold mb-3">
+                                                        <i class="fa fa-tags text-primary mr-2"></i>
+                                                        Domaines d'activité
+                                                    </label>
+                                                    <div class="bg-light p-3 rounded">
+                                                        <div class="row">
+                                                            <t t-foreach="activity_domains" t-as="domain">
+                                                                <div class="col-md-4 col-sm-6 mb-2">
+                                                                    <div class="custom-control custom-checkbox">
+                                                                        <input class="custom-control-input" type="checkbox" 
+                                                                               name="activity_domains" t-att-value="domain.id"
+                                                                               t-att-id="'domain_' + str(domain.id)"/>
+                                                                        <label class="custom-control-label" 
+                                                                               t-att-for="'domain_' + str(domain.id)">
+                                                                            <t t-esc="domain.name"/>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            </t>
+                                                        </div>
+                                                    </div>
+                                                    <small class="form-text text-muted">
+                                                        Sélectionnez tous les domaines dans lesquels votre organisation est active
+                                                    </small>
+                                                </div>
+                                                
+                                                <div class="form-group mb-0">
+                                                    <label for="main_activities" class="form-label font-weight-bold">
+                                                        <i class="fa fa-list-alt text-primary mr-2"></i>
+                                                        Activités Principales *
+                                                    </label>
+                                                    <textarea class="form-control form-control-lg" name="main_activities" rows="5" 
+                                                              required="required" placeholder="Décrivez en détail les activités principales de votre organisation...">
+                                                        <t t-esc="form_data.get('main_activities', '')"/>
+                                                    </textarea>
+                                                    <small class="form-text text-muted">
+                                                        Minimum 100 caractères recommandés
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Section 2: Informations financières -->
+                                    <div class="form-section">
+                                        <div class="card border-0 shadow-sm mb-4">
+                                            <div class="card-header bg-gradient-success text-white">
+                                                <h5 class="mb-0">
+                                                    <i class="fa fa-money mr-2"></i>
+                                                    2. Informations Financières
+                                                </h5>
+                                            </div>
+                                            <div class="card-body p-4">
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group mb-4">
+                                                            <label for="annual_budget" class="form-label font-weight-bold">
+                                                                <i class="fa fa-calculator text-success mr-2"></i>
+                                                                Budget Annuel (en CFA)
+                                                            </label>
+                                                            <div class="input-group input-group-lg">
+                                                                <div class="input-group-prepend">
+                                                                    <span class="input-group-text">CFA</span>
+                                                                </div>
+                                                                <input type="number" class="form-control" name="annual_budget" 
+                                                                       step="0.01" placeholder="Ex: 150000"
+                                                                       t-att-value="form_data.get('annual_budget', '')"/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="bg-light p-3 rounded h-100 d-flex align-items-center">
+                                                            <div>
+                                                                <h6 class="text-muted mb-1">Conseil</h6>
+                                                                <small class="text-muted">
+                                                                    Indiquez votre budget annuel total incluant toutes les sources de financement.
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="form-group mb-0">
+                                                    <label for="funding_sources" class="form-label font-weight-bold">
+                                                        <i class="fa fa-bank text-success mr-2"></i>
+                                                        Sources de Financement
+                                                    </label>
+                                                    <textarea class="form-control form-control-lg" name="funding_sources" rows="4" 
+                                                              placeholder="Ex: Subventions publiques, donations privées, partenariats...">
+                                                        <t t-esc="form_data.get('funding_sources', '')"/>
+                                                    </textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Section 3: Ressources humaines -->
+                                    <div class="form-section">
+                                        <div class="card border-0 shadow-sm mb-4">
+                                            <div class="card-header bg-gradient-info text-white">
+                                                <h5 class="mb-0">
+                                                    <i class="fa fa-users mr-2"></i>
+                                                    3. Ressources Humaines
+                                                </h5>
+                                            </div>
+                                            <div class="card-body p-4">
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group mb-4">
+                                                            <label for="staff_count" class="form-label font-weight-bold">
+                                                                <i class="fa fa-user-tie text-info mr-2"></i>
+                                                                Nombre d'Employés
+                                                            </label>
+                                                            <input type="number" class="form-control form-control-lg" name="staff_count" 
+                                                                   min="0" placeholder="0" t-att-value="form_data.get('staff_count', '')"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group mb-4">
+                                                            <label for="volunteer_count" class="form-label font-weight-bold">
+                                                                <i class="fa fa-heart text-info mr-2"></i>
+                                                                Nombre de Bénévoles
+                                                            </label>
+                                                            <input type="number" class="form-control form-control-lg" name="volunteer_count" 
+                                                                   min="0" placeholder="0" t-att-value="form_data.get('volunteer_count', '')"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <div class="bg-light p-4 rounded">
+                                                            <div class="row text-center">
+                                                                <div class="col-md-4">
+                                                                    <div class="mb-2">
+                                                                        <i class="fa fa-users fa-2x text-primary"></i>
+                                                                    </div>
+                                                                    <h6 class="mb-1">Équipe Totale</h6>
+                                                                    <p class="text-muted mb-0" id="totalTeam">0 personnes</p>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <div class="mb-2">
+                                                                        <i class="fa fa-chart-pie fa-2x text-success"></i>
+                                                                    </div>
+                                                                    <h6 class="mb-1">Ratio Employés</h6>
+                                                                    <p class="text-muted mb-0" id="staffRatio">-</p>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <div class="mb-2">
+                                                                        <i class="fa fa-heart fa-2x text-danger"></i>
+                                                                    </div>
+                                                                    <h6 class="mb-1">Ratio Bénévoles</h6>
+                                                                    <p class="text-muted mb-0" id="volunteerRatio">-</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Section 4: Expérience -->
+                                    <div class="form-section">
+                                        <div class="card border-0 shadow-sm mb-4">
+                                            <div class="card-header bg-gradient-warning text-white">
+                                                <h5 class="mb-0">
+                                                    <i class="fa fa-star mr-2"></i>
+                                                    4. Expérience et Projets
+                                                </h5>
+                                            </div>
+                                            <div class="card-body p-4">
+                                                <div class="row">
+                                                    <div class="col-lg-4">
+                                                        <div class="form-group mb-4">
+                                                            <label for="years_experience" class="form-label font-weight-bold">
+                                                                <i class="fa fa-calendar text-warning mr-2"></i>
+                                                                Années d'Expérience *
+                                                            </label>
+                                                            <input type="number" class="form-control form-control-lg" name="years_experience" 
+                                                                   min="0" required="required" placeholder="Ex: 5"
+                                                                   t-att-value="form_data.get('years_experience', '')"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-8">
+                                                        <div class="bg-light p-3 rounded h-100 d-flex align-items-center">
+                                                            <div id="experienceLevel">
+                                                                <h6 class="text-muted mb-1">Niveau d'expérience</h6>
+                                                                <span class="badge badge-secondary" style="color: #f15e22; !important">Non défini</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="form-group mb-4">
+                                                    <label for="previous_projects" class="form-label font-weight-bold">
+                                                        <i class="fa fa-project-diagram text-warning mr-2"></i>
+                                                        Projets Précédents
+                                                    </label>
+                                                    <textarea class="form-control form-control-lg" name="previous_projects" rows="5" 
+                                                              placeholder="Décrivez vos projets les plus significatifs, leurs impacts et résultats...">
+                                                        <t t-esc="form_data.get('previous_projects', '')"/>
+                                                    </textarea>
+                                                </div>
+                                                
+                                                <div class="form-group mb-0">
+                                                    <label for="references" class="form-label font-weight-bold">
+                                                        <i class="fa fa-address-book text-warning mr-2"></i>
+                                                        Références
+                                                    </label>
+                                                    <textarea class="form-control form-control-lg" name="references" rows="3" 
+                                                              placeholder="Contacts de partenaires, bailleurs de fonds, ou autres organisations...">
+                                                        <t t-esc="form_data.get('references', '')"/>
+                                                    </textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Section 5: Documents -->
+                                    <div class="form-section">
+                                        <div class="card border-0 shadow-sm mb-5">
+                                            <div class="card-header bg-gradient-secondary text-white">
+                                                <h5 class="mb-0">
+                                                    <i class="fa fa-file-text mr-2"></i>
+                                                    5. Documents Justificatifs
+                                                </h5>
+                                            </div>
+                                            <div class="card-body p-4">
+                                                <div class="row">
+                                                    <div class="col-lg-4">
+                                                        <div class="form-group mb-4">
+                                                            <label for="statute_document" class="form-label font-weight-bold">
+                                                                <i class="fa fa-file-pdf-o text-danger mr-2"></i>
+                                                                Statuts de l'Organisation
+                                                            </label>
+                                                            <div class="custom-file">
+                                                                <input type="file" class="custom-file-input" name="statute_document" 
+                                                                       accept=".pdf,.doc,.docx" id="statute_document"/>
+                                                                <label class="custom-file-label" for="statute_document">
+                                                                    Choisir un fichier...
+                                                                </label>
+                                                            </div>
+                                                            <small class="form-text text-muted">PDF, DOC, DOCX acceptés</small>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="col-lg-4">
+                                                        <div class="form-group mb-4">
+                                                            <label for="certificate_document" class="form-label font-weight-bold">
+                                                                <i class="fa fa-certificate text-success mr-2"></i>
+                                                                Certificat d'Enregistrement
+                                                            </label>
+                                                            <div class="custom-file">
+                                                                <input type="file" class="custom-file-input" name="certificate_document" 
+                                                                       accept=".pdf,.doc,.docx,.jpg,.png" id="certificate_document"/>
+                                                                <label class="custom-file-label" for="certificate_document">
+                                                                    Choisir un fichier...
+                                                                </label>
+                                                            </div>
+                                                            <small class="form-text text-muted">PDF, images acceptés</small>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="col-lg-4">
+                                                        <div class="form-group mb-4">
+                                                            <label for="financial_report" class="form-label font-weight-bold">
+                                                                <i class="fa fa-line-chart text-info mr-2"></i>
+                                                                Rapport Financier
+                                                            </label>
+                                                            <div class="custom-file">
+                                                                <input type="file" class="custom-file-input" name="financial_report" 
+                                                                       accept=".pdf,.xls,.xlsx" id="financial_report"/>
+                                                                <label class="custom-file-label" for="financial_report">
+                                                                    Choisir un fichier...
+                                                                </label>
+                                                            </div>
+                                                            <small class="form-text text-muted">PDF, Excel acceptés</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="alert alert-info">
+                                                    <i class="fa fa-info-circle mr-2"></i>
+                                                    <strong>Information:</strong> Les documents sont optionnels mais recommandés pour renforcer votre candidature.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Actions -->
+                                    <div class="text-center pb-5">
+                                        <div class="bg-light p-5 rounded shadow-sm">
+                                            <h5 class="mb-4">Prêt à soumettre votre candidature ?</h5>
+                                            <button type="submit" class="btn btn-success btn-lg px-5 py-3 mr-3">
+                                                <i class="fa fa-paper-plane mr-2"></i>
+                                                Soumettre ma Candidature
+                                            </button>
+                                            <a t-attf-href="/ong-recruitment/campaign/{{ campaign.id }}" 
+                                               class="btn btn-outline-secondary btn-lg px-5 py-3">
+                                                <i class="fa fa-arrow-left mr-2"></i>
+                                                Retour
+                                            </a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- JavaScript pour l'interactivité -->
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Mise à jour des labels de fichiers
+                            document.querySelectorAll('.custom-file-input').forEach(function(input) {
+                                input.addEventListener('change', function(e) {
+                                    var fileName = e.target.files[0] ? e.target.files[0].name : 'Choisir un fichier...';
+                                    var label = e.target.nextElementSibling;
+                                    label.textContent = fileName;
+                                });
+                            });
+
+                            // Calcul des ratios d'équipe
+                            function updateTeamStats() {
+                                var staff = parseInt(document.querySelector('input[name="staff_count"]').value) || 0;
+                                var volunteers = parseInt(document.querySelector('input[name="volunteer_count"]').value) || 0;
+                                var total = staff + volunteers;
+
+                                document.getElementById('totalTeam').textContent = total + ' personnes';
+                                
+                                if (total > 0) {
+                                    var staffPercent = Math.round((staff / total) * 100);
+                                    var volunteerPercent = Math.round((volunteers / total) * 100);
+                                    document.getElementById('staffRatio').textContent = staffPercent + '%';
+                                    document.getElementById('volunteerRatio').textContent = volunteerPercent + '%';
+                                } else {
+                                    document.getElementById('staffRatio').textContent = '-';
+                                    document.getElementById('volunteerRatio').textContent = '-';
+                                }
+                            }
+
+                            // Niveau d'expérience
+                            function updateExperienceLevel() {
+                                var years = parseInt(document.querySelector('input[name="years_experience"]').value) || 0;
+                                var levelDiv = document.getElementById('experienceLevel');
+                                var badge = levelDiv.querySelector('.badge');
+                                
+                                if (years === 0) {
+                                    badge.className = 'badge badge-secondary';
+                                    badge.textContent = 'Non défini';
+                                } else if (years &lt; 2) {
+                                    badge.className = 'badge badge-primary';
+                                    badge.textContent = 'Débutant';
+                                } else if (years &lt; 5) {
+                                    badge.className = 'badge badge-info';
+                                    badge.textContent = 'Intermédiaire';
+                                } else if (years &lt; 10) {
+                                    badge.className = 'badge badge-warning';
+                                    badge.textContent = 'Expérimenté';
+                                } else {
+                                    badge.className = 'badge badge-success';
+                                    badge.textContent = 'Expert';
+                                }
+                            }
+
+                            // Progress bar
+                            function updateProgress() {
+                                var sections = document.querySelectorAll('.form-section');
+                                var completedSections = 0;
+                                
+                                sections.forEach(function(section) {
+                                    var requiredFields = section.querySelectorAll('input[required], textarea[required], select[required]');
+                                    var completed = true;
+                                    
+                                    requiredFields.forEach(function(field) {
+                                        if (!field.value.trim()) {
+                                            completed = false;
+                                        }
+                                    });
+                                    
+                                    if (completed) {
+                                        completedSections++;
+                                    }
+                                });
+                                
+                                var progress = (completedSections / sections.length) * 100;
+                                document.getElementById('formProgress').style.width = progress + '%';
+                            }
+
+                            // Validation email en temps réel
+                            function validateEmail() {
+                                var emailField = document.getElementById('email');
+                                var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                
+                                if (emailField.value &amp;&amp; !emailRegex.test(emailField.value)) {
+                                    emailField.setCustomValidity('Veuillez entrer une adresse email valide');
+                                } else {
+                                    emailField.setCustomValidity('');
+                                }
+                            }
+
+                            // Validation URL en temps réel
+                            function validateWebsite() {
+                                var websiteField = document.getElementById('website');
+                                var urlRegex = /^https?:\/\/.+/;
+                                
+                                if (websiteField.value &amp;&amp; !urlRegex.test(websiteField.value)) {
+                                    websiteField.setCustomValidity('L\'URL doit commencer par http:// ou https://');
+                                } else {
+                                    websiteField.setCustomValidity('');
+                                }
+                            }
+
+                            // Event listeners
+                            document.querySelector('input[name="staff_count"]').addEventListener('input', updateTeamStats);
+                            document.querySelector('input[name="volunteer_count"]').addEventListener('input', updateTeamStats);
+                            document.querySelector('input[name="years_experience"]').addEventListener('input', updateExperienceLevel);
+                            
+                            // Validation en temps réel
+                            document.getElementById('email').addEventListener('input', validateEmail);
+                            if (document.getElementById('website')) {
+                                document.getElementById('website').addEventListener('input', validateWebsite);
+                            }
+                            
+                            // Progress tracking
+                            document.querySelectorAll('input, textarea, select').forEach(function(field) {
+                                field.addEventListener('input', updateProgress);
+                                field.addEventListener('change', updateProgress);
+                            });
+
+                            // Initial calls
+                            updateTeamStats();
+                            updateExperienceLevel();
+                            updateProgress();
+
+                            // Smooth scrolling for form sections
+                            var formSections = document.querySelectorAll('.form-section');
+                            var observer = new IntersectionObserver(function(entries) {
+                                entries.forEach(function(entry) {
+                                    if (entry.isIntersecting) {
+                                        entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+                                    }
+                                });
+                            });
+
+                            formSections.forEach(function(section) {
+                                observer.observe(section);
+                            });
+                        });
+                    </script>
+
+                    <style>
+                        .bg-gradient-primary {
+                            background: linear-gradient(135deg, #007bff, #0056b3);
+                        }
+                        
+                        .bg-gradient-success {
+                            background: linear-gradient(135deg, #28a745, #1e7e34);
+                        }
+                        
+                        .bg-gradient-info {
+                            background: linear-gradient(135deg, #17a2b8, #117a8b);
+                        }
+                        
+                        .bg-gradient-warning {
+                            background: linear-gradient(135deg, #ffc107, #e0a800);
+                        }
+                        
+                        .bg-gradient-secondary {
+                            background: linear-gradient(135deg, #6c757d, #5a6268);
+                        }
+                        
+                        .form-section {
+                            opacity: 0;
+                            transform: translateY(20px);
+                            transition: all 0.6s ease;
+                        }
+                        
+                        .form-section.animate__animated {
+                            opacity: 1;
+                            transform: translateY(0);
+                        }
+                        
+                        .form-control:focus {
+                            border-color: #80bdff;
+                            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+                        }
+                        
+                        .card {
+                            transition: transform 0.2s ease;
+                        }
+                        
+                        .card:hover {
+                            transform: translateY(-2px);
+                        }
+                        
+                        .custom-control-input:checked ~ .custom-control-label::before {
+                            background-color: #007bff;
+                            border-color: #007bff;
+                        }
+                        
+                        .progress-bar {
+                            transition: width 0.6s ease;
+                        }
+                        
+                        @media (max-width: 768px) {
+                            .display-4 {
+                                font-size: 2rem;
+                            }
+                            
+                            .btn-lg {
+                                padding: 0.75rem 1.5rem;
+                                font-size: 1rem;
+                            }
+                        }
+                    </style>
+                </div>
+            </t>
+        </template>
+        
+        <!-- Template de confirmation de soumission -->
+        <template id="application_success" name="Candidature Soumise">
+            <t t-call="website.layout">
+                <div id="wrap">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-8 offset-lg-2">
+                                <div class="text-center">
+                                    <div class="alert alert-success">
+                                        <h2>
+                                            <i class="fa fa-check-circle text-success"></i>
+                                            Candidature Soumise avec Succès!
+                                        </h2>
+                                    </div>
+                                    
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h4>Merci <t t-esc="application.name"/>!</h4>
+                                            <p class="lead">
+                                                Votre candidature pour la campagne 
+                                                "<strong><t t-esc="campaign.name"/></strong>" 
+                                                a été soumise avec succès.
+                                            </p>
+                                            
+                                            <div class="row mt-4">
+                                                <div class="col-md-6">
+                                                    <p><strong>Numéro de candidature:</strong><br/>
+                                                    #<t t-esc="application.id"/></p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p><strong>Date de soumission:</strong><br/>
+                                                    <t t-esc="application.submission_date.strftime('%d/%m/%Y à %H:%M')"/></p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="alert alert-info">
+                                                <h6><i class="fa fa-info-circle"></i> Prochaines étapes:</h6>
+                                                <ul class="text-left">
+                                                    <li>Votre candidature sera automatiquement évaluée selon les critères définis</li>
+                                                    <li>Les résultats seront communiqués après la fin de la période de candidature</li>
+                                                    <li>Vous recevrez une notification par email</li>
+                                                </ul>
+                                            </div>
+                                            
+                                            <a t-attf-href="/ong-recruitment/application/{{ application.id }}" 
+                                               class="btn btn-primary">
+                                                Voir ma candidature
+                                            </a>
+                                            <a href="/ong-recruitment" class="btn btn-secondary ml-2">
+                                                Retour aux campagnes
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+        
+        <!-- Template de statut de candidature -->
+        <template id="application_status" name="Statut de Candidature">
+            <t t-call="website.layout">
+                <div id="wrap">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-10 offset-lg-1">
+                                <h1 class="text-center mb-4">
+                                    Statut de Candidature - <t t-esc="application.name"/>
+                                </h1>
+                                
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h5>Informations de la Candidature</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <p><strong>Campagne:</strong><br/>
+                                                        <t t-esc="application.campaign_id.name"/></p>
+                                                        
+                                                        <p><strong>Email:</strong><br/>
+                                                        <t t-esc="application.email"/></p>
+                                                        
+                                                        <p><strong>Expérience:</strong><br/>
+                                                        <t t-esc="application.years_experience"/> années</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p><strong>Soumise le:</strong><br/>
+                                                        <t t-esc="application.submission_date.strftime('%d/%m/%Y à %H:%M')"/></p>
+                                                        
+                                                        <p><strong>Statut:</strong><br/>
+                                                        <span t-att-class="'badge badge-' + ('success' if application.state == 'selected' else 'danger' if application.state == 'rejected' else 'warning')">
+                                                            <t t-if="application.state == 'draft'">Brouillon</t>
+                                                            <t t-elif="application.state == 'submitted'">Soumise</t>
+                                                            <t t-elif="application.state == 'under_review'">En Révision</t>
+                                                            <t t-elif="application.state == 'selected'">Sélectionnée</t>
+                                                            <t t-elif="application.state == 'rejected'">Non Retenue</t>
+                                                        </span></p>
+                                                        
+                                                        <p><strong>Score Total:</strong><br/>
+                                                        <t t-esc="application.total_score"/> points</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Détail des scores par critère -->
+                                        <t t-if="application.evaluation_ids">
+                                            <div class="card mt-4">
+                                                <div class="card-header">
+                                                    <h5>Détail de l'Évaluation</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-striped">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Critère</th>
+                                                                    <th>Score Obtenu</th>
+                                                                    <th>Score Maximum</th>
+                                                                    <th>Pourcentage</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <t t-foreach="application.evaluation_ids" t-as="evaluation">
+                                                                    <tr>
+                                                                        <td><t t-esc="evaluation.criterion_id.name"/></td>
+                                                                        <td><t t-esc="evaluation.score"/></td>
+                                                                        <td><t t-esc="evaluation.criterion_id.max_score"/></td>
+                                                                        <td>
+                                                                            <t t-esc="round((evaluation.score / evaluation.criterion_id.max_score) * 100, 1)"/>%
+                                                                        </td>
+                                                                    </tr>
+                                                                </t>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div class="card bg-light">
+                                            <div class="card-body text-center">
+                                                <t t-if="application.state == 'selected'">
+                                                    <div class="text-success mb-3">
+                                                        <i class="fa fa-trophy fa-3x"></i>
+                                                    </div>
+                                                    <h5 class="text-success">Félicitations!</h5>
+                                                    <p>Votre ONG a été sélectionnée pour cette campagne.</p>
+                                                </t>
+                                                <t t-elif="application.state == 'rejected'">
+                                                    <div class="text-warning mb-3">
+                                                        <i class="fa fa-exclamation-triangle fa-3x"></i>
+                                                    </div>
+                                                    <h5 class="text-warning">Non Retenue</h5>
+                                                    <p>Votre candidature n'a pas été retenue pour cette campagne.</p>
+                                                </t>
+                                                <t t-else="">
+                                                    <div class="text-info mb-3">
+                                                        <i class="fa fa-clock-o fa-3x"></i>
+                                                    </div>
+                                                    <h5 class="text-info">En Cours</h5>
+                                                    <p>Votre candidature est en cours d'évaluation.</p>
+                                                </t>
+                                                
+                                                <hr/>
+                                                <a href="/ong-recruitment" class="btn btn-primary">
+                                                    Voir d'autres campagnes
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

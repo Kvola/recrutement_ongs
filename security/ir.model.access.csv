@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ong_recruitment_campaign_user,ong.recruitment.campaign user,model_ong_recruitment_campaign,base.group_user,1,1,1,1
+access_ong_application_user,ong.application user,model_ong_application,base.group_user,1,1,1,1
+access_ong_evaluation_criteria_user,ong.evaluation.criteria user,model_ong_evaluation_criteria,base.group_user,1,1,1,1
+access_ong_application_evaluation_user,ong.application.evaluation user,model_ong_application_evaluation,base.group_user,1,1,1,1
+access_ong_activity_domain_user,ong.activity.domain user,model_ong_activity_domain,base.group_user,1,1,1,1
+access_ong_application_public,ong.application public,model_ong_application,base.group_public,1,1,1,0
+access_ong_recruitment_campaign_public,ong.recruitment.campaign public,model_ong_recruitment_campaign,base.group_public,1,0,0,0
+access_ong_evaluation_criteria_public,ong.evaluation.criteria public,model_ong_evaluation_criteria,base.group_public,1,0,0,0
+access_ong_activity_domain_public,ong.activity.domain public,model_ong_activity_domain,base.group_public,1,0,0,0

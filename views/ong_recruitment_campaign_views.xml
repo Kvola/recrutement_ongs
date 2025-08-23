@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vue formulaire campagne améliorée -->
+        <record id="view_ong_recruitment_campaign_form" model="ir.ui.view">
+            <field name="name">ong.recruitment.campaign.form</field>
+            <field name="model">ong.recruitment.campaign</field>
+            <field name="arch" type="xml">
+                <form string="Campagne de Recrutement">
+                    <header>
+                        <button name="action_open_campaign" type="object" 
+                                string="Ouvrir" invisible="state!='draft'"
+                                class="btn-primary"/>
+                        <button name="action_close_applications" type="object" 
+                                string="Fermer les Candidatures" invisible="state!='open'" 
+                                class="btn-primary"/>
+                        <button name="action_close_campaign" type="object" 
+                                string="Fermer la Campagne" invisible="state!='evaluation'" 
+                                class="btn-primary"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="Nom de la campagne"/>
+                            </h1>
+                        </div>
+                        
+                        <group>
+                            <group>
+                                <field name="start_date"/>
+                                <field name="end_date"/>
+                                <field name="max_selections"/>
+                                <field name="auto_selection"/>
+                            </group>
+                            <group>
+                                <field name="website_published"/>
+                                <field name="total_applications"/>
+                                <field name="selected_applications"/>
+                            </group>
+                        </group>
+                        
+                        <notebook>
+                            <page string="Description">
+                                <field name="description" 
+                                       widget="html" 
+                                       options="{
+                                           'style-inline': true,
+                                           'snippets': false,
+                                           'resizable': true,
+                                           'height': 400,
+                                           'toolbar': [
+                                               ['style', ['style']],
+                                               ['font', ['bold', 'italic', 'underline', 'clear']],
+                                               ['fontsize', ['fontsize']],
+                                               ['color', ['color']],
+                                               ['para', ['ul', 'ol', 'paragraph']],
+                                               ['table', ['table']],
+                                               ['insert', ['link', 'picture', 'hr']],
+                                               ['view', ['fullscreen', 'codeview']]
+                                           ]
+                                       }" 
+                                       placeholder="Décrivez votre campagne de recrutement en détail..."/>
+                                
+                                <!-- Aperçu texte pour vérification -->
+                                <div class="mt-3">
+                                    <label for="description_text" class="o_form_label">Aperçu texte (pour liste de campagnes):</label>
+                                    <div class="alert alert-info">
+                                        <field name="description_text" readonly="1"/>
+                                    </div>
+                                </div>
+                            </page>
+                            
+                            <page string="Critères d'Évaluation">
+                                <field name="criteria_ids">
+                                    <tree editable="bottom">
+                                        <field name="name"/>
+                                        <field name="weight"/>
+                                        <field name="description"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            
+                            <page string="Candidatures">
+                                <field name="application_ids">
+                                    <tree decoration-success="state=='selected'" 
+                                          decoration-danger="state=='rejected'">
+                                        <field name="name"/>
+                                        <field name="email"/>
+                                        <field name="years_experience"/>
+                                        <field name="total_score"/>
+                                        <field name="state"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        
+        <!-- Vue liste campagne améliorée -->
+        <record id="view_ong_recruitment_campaign_tree" model="ir.ui.view">
+            <field name="name">ong.recruitment.campaign.tree</field>
+            <field name="model">ong.recruitment.campaign</field>
+            <field name="arch" type="xml">
+                <tree decoration-info="state=='draft'" 
+                      decoration-success="state=='open'" 
+                      decoration-warning="state=='evaluation'"
+                      decoration-muted="state=='closed'">
+                    <field name="name"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="total_applications"/>
+                    <field name="selected_applications"/>
+                    <field name="max_selections"/>
+                    <field name="website_published" widget="boolean_toggle"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        
+        <!-- Vue kanban pour un aperçu visuel -->
+        <record id="view_ong_recruitment_campaign_kanban" model="ir.ui.view">
+            <field name="name">ong.recruitment.campaign.kanban</field>
+            <field name="model">ong.recruitment.campaign</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="state" class="o_kanban_small_column">
+                    <field name="name"/>
+                    <field name="description_text"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="state"/>
+                    <field name="total_applications"/>
+                    <field name="selected_applications"/>
+                    <field name="max_selections"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_card oe_kanban_global_click">
+                                <div class="o_kanban_content">
+                                    <div class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </div>
+                                    <div class="o_kanban_record_subtitle">
+                                        <t t-if="record.description_text.value">
+                                            <t t-esc="record.description_text.value.substring(0, 100)"/>...
+                                        </t>
+                                        <t t-else="">
+                                            Aucune description
+                                        </t>
+                                    </div>
+                                    <div class="o_kanban_record_body">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <strong>Fin:</strong> 
+                                                <field name="end_date" widget="date"/>
+                                            </div>
+                                            <div class="col-6">
+                                                <strong>Places:</strong> 
+                                                <field name="max_selections"/>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-12">
+                                                <div class="progress" style="height: 10px;">
+                                                    <div class="progress-bar" 
+                                                         t-att-style="'width: ' + (record.total_applications.raw_value / (record.max_selections.raw_value * 3) * 100) + '%'"/>
+                                                </div>
+                                                <small class="text-muted">
+                                                    <t t-esc="record.total_applications.value"/> candidatures
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="o_kanban_record_bottom">
+                                        <div class="oe_kanban_bottom_left">
+                                            <field name="website_published" widget="boolean_toggle"/>
+                                        </div>
+                                        <div class="oe_kanban_bottom_right">
+                                            <field name="state" widget="label_selection" 
+                                                   options="{'classes': {'draft': 'secondary', 'open': 'success', 'evaluation': 'warning', 'closed': 'danger'}}"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        
+        <!-- Vue recherche améliorée -->
+        <record id="view_ong_recruitment_campaign_search" model="ir.ui.view">
+            <field name="name">ong.recruitment.campaign.search</field>
+            <field name="model">ong.recruitment.campaign</field>
+            <field name="arch" type="xml">
+                <search string="Recherche Campagnes">
+                    <field name="name" string="Nom" filter_domain="[('name', 'ilike', self)]"/>
+                    <field name="description_text" string="Description" filter_domain="[('description_text', 'ilike', self)]"/>
+                    <separator/>
+                    <filter name="filter_draft" string="Brouillon" domain="[('state', '=', 'draft')]"/>
+                    <filter name="filter_open" string="Ouvert" domain="[('state', '=', 'open')]"/>
+                    <filter name="filter_evaluation" string="En Évaluation" domain="[('state', '=', 'evaluation')]"/>
+                    <filter name="filter_closed" string="Fermé" domain="[('state', '=', 'closed')]"/>
+                    <separator/>
+                    <filter name="filter_published" string="Publié sur le site" domain="[('website_published', '=', True)]"/>
+                    <filter name="filter_ending_soon" string="Se termine bientôt" 
+                            domain="[('end_date', '&lt;=', (context_today() + datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                    <separator/>
+                    <group expand="0" string="Grouper par">
+                        <filter name="group_state" string="État" context="{'group_by': 'state'}"/>
+                        <filter name="group_month" string="Mois de création" context="{'group_by': 'create_date:month'}"/>
+                        <filter name="group_end_date" string="Date de fin" context="{'group_by': 'end_date:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        
+        <!-- Action campagne améliorée -->
+        <record id="action_ong_recruitment_campaign" model="ir.actions.act_window">
+            <field name="name">Campagnes de Recrutement</field>
+            <field name="res_model">ong.recruitment.campaign</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_id" ref="view_ong_recruitment_campaign_kanban"/>
+            <field name="search_view_id" ref="view_ong_recruitment_campaign_search"/>
+            <field name="context">{'search_default_filter_open': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Créer votre première campagne de recrutement !
+                </p>
+                <p>
+                    Les campagnes permettent de recruter et sélectionner des ONGs 
+                    selon des critères spécifiques.
+                </p>
+            </field>
+        </record>              
+    </data>
+</odoo>

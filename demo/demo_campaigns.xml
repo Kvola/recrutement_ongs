@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Campagne de démonstration 1 - En cours -->
+        <record id="demo_campaign_1" model="ong.recruitment.campaign">
+            <field name="name">Programme d'Aide Humanitaire 2025</field>
+            <field name="description">
+                <![CDATA[
+                <p>Nous recherchons des ONGs partenaires pour notre programme d'aide humanitaire en Afrique de l'Ouest.</p>
+                <p><strong>Objectifs du programme :</strong></p>
+                <ul>
+                    <li>Distribution d'aide alimentaire dans les zones rurales</li>
+                    <li>Accès à l'eau potable pour 50 000 personnes</li>
+                    <li>Programme d'éducation d'urgence</li>
+                    <li>Soins de santé primaires</li>
+                </ul>
+                <p><strong>Budget total :</strong> 2,5 millions d'euros</p>
+                <p><strong>Durée :</strong> 18 mois</p>
+                ]]>
+            </field>
+            <field name="start_date" eval="(DateTime.now() - timedelta(days=15))"/>
+            <field name="end_date" eval="(DateTime.now() + timedelta(days=30))"/>
+            <field name="max_selections">8</field>
+            <field name="state">open</field>
+            <field name="auto_selection" eval="True"/>
+            <field name="website_published" eval="True"/>
+            <field name="criteria_ids" eval="[(6, 0, [
+                ref('criteria_experience'),
+                ref('criteria_budget'),
+                ref('criteria_staff'),
+                ref('criteria_documents'),
+                ref('criteria_completeness')
+            ])]"/>
+        </record>
+
+        <!-- Campagne de démonstration 2 - En cours -->
+        <record id="demo_campaign_2" model="ong.recruitment.campaign">
+            <field name="name">Initiative Éducation pour Tous</field>
+            <field name="description">
+                <![CDATA[
+                <p>Programme éducatif visant à améliorer l'accès à l'éducation de base dans les communautés défavorisées.</p>
+                <p><strong>Domaines d'intervention :</strong></p>
+                <ul>
+                    <li>Construction et rénovation d'écoles</li>
+                    <li>Formation des enseignants</li>
+                    <li>Distribution de matériel scolaire</li>
+                    <li>Programme d'alphabétisation des adultes</li>
+                    <li>Bourses d'études pour filles</li>
+                </ul>
+                <p><strong>Zone géographique :</strong> Afrique subsaharienne</p>
+                <p><strong>Budget :</strong> 1,8 millions d'euros</p>
+                ]]>
+            </field>
+            <field name="start_date" eval="(DateTime.now() - timedelta(days=5))"/>
+            <field name="end_date" eval="(DateTime.now() + timedelta(days=45))"/>
+            <field name="max_selections">5</field>
+            <field name="state">open</field>
+            <field name="auto_selection" eval="True"/>
+            <field name="website_published" eval="True"/>
+            <field name="criteria_ids" eval="[(6, 0, [
+                ref('criteria_experience'),
+                ref('criteria_budget'),
+                ref('criteria_staff'),
+                ref('criteria_completeness')
+            ])]"/>
+        </record>
+
+        <!-- Campagne de démonstration 3 - Fermée avec résultats -->
+        <record id="demo_campaign_3" model="ong.recruitment.campaign">
+            <field name="name">Programme Santé Maternelle 2024</field>
+            <field name="description">
+                <![CDATA[
+                <p>Programme terminé de promotion de la santé maternelle et infantile.</p>
+                <p><strong>Résultats obtenus :</strong></p>
+                <ul>
+                    <li>15 000 femmes enceintes suivies</li>
+                    <li>8 centres de santé équipés</li>
+                    <li>200 agents de santé formés</li>
+                    <li>Réduction de 30% de la mortalité maternelle</li>
+                </ul>
+                ]]>
+            </field>
+            <field name="start_date" eval="(DateTime.now() - timedelta(days=120))"/>
+            <field name="end_date" eval="(DateTime.now() - timedelta(days=60))"/>
+            <field name="max_selections">3</field>
+            <field name="state">closed</field>
+            <field name="auto_selection" eval="True"/>
+            <field name="website_published" eval="False"/>
+            <field name="criteria_ids" eval="[(6, 0, [
+                ref('criteria_experience'),
+                ref('criteria_budget'),
+                ref('criteria_staff'),
+                ref('criteria_documents')
+            ])]"/>
+        </record>
+
+        <!-- Campagne de démonstration 4 - Brouillon -->
+        <record id="demo_campaign_4" model="ong.recruitment.campaign">
+            <field name="name">Projet Développement Durable 2025</field>
+            <field name="description">
+                <![CDATA[
+                <p>Nouveau programme axé sur le développement durable et la protection environnementale.</p>
+                <p><strong>Axes prioritaires :</strong></p>
+                <ul>
+                    <li>Agriculture durable et agroécologie</li>
+                    <li>Énergies renouvelables</li>
+                    <li>Gestion des déchets</li>
+                    <li>Préservation de la biodiversité</li>
+                    <li>Sensibilisation environnementale</li>
+                </ul>
+                <p><em>Lancement prévu pour mars 2025</em></p>
+                ]]>
+            </field>
+            <field name="start_date" eval="(DateTime.now() + timedelta(days=60))"/>
+            <field name="end_date" eval="(DateTime.now() + timedelta(days=120))"/>
+            <field name="max_selections">6</field>
+            <field name="state">draft</field>
+            <field name="auto_selection" eval="True"/>
+            <field name="website_published" eval="False"/>
+            <field name="criteria_ids" eval="[(6, 0, [
+                ref('criteria_experience'),
+                ref('criteria_budget'),
+                ref('criteria_staff'),
+                ref('criteria_documents'),
+                ref('criteria_completeness')
+            ])]"/>
+        </record>
+    </data>
+</odoo>
