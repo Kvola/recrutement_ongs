@@ -5,7 +5,6 @@ from odoo.http import request
 from datetime import datetime, date
 from odoo.exceptions import ValidationError
 from odoo.tools import html_sanitize
-from markupsafe import Markup
 import base64
 import logging
 import re
@@ -16,38 +15,37 @@ class OngRecruitmentController(http.Controller):
 
     @http.route(['/ong-recruitment', '/ong-recruitment/campaigns'], type='http', auth="public", website=True)
     def campaign_list(self, **kw):
-        """Page de liste des campagnes avec descriptions améliorées"""
+        """Page de liste des campagnes avec gestion améliorée des descriptions"""
         try:
             # Récupérer les paramètres de filtrage
             search_query = kw.get('search', '')
             state_filter = kw.get('state', '')
             
             # Domaine de base pour les campagnes publiées
-            domain = [('website_published', '=', True)]
+            domain = [
+                ('website_published', '=', True),
+                ('state', 'in', ['open', 'evaluation'])
+            ]
             
-            # Ajouter les filtres d'état (plus flexible que l'ancienne version)
+            # Ajouter les filtres
             if state_filter:
                 domain.append(('state', '=', state_filter))
-            else:
-                # Par défaut, afficher les campagnes ouvertes et en évaluation
-                domain.append(('state', 'in', ['open', 'evaluation']))
-            
-            # Ajouter la recherche textuelle
+                
             if search_query:
                 domain.extend([
                     '|', '|',
                     ('name', 'ilike', search_query),
                     ('description_text', 'ilike', search_query),
-                    ('organization_name', 'ilike', search_query)
+                    ('description', 'ilike', search_query)
                 ])
             
-            # Récupérer les campagnes avec tri amélioré
+            # Récupérer les campagnes
             campaigns = request.env['ong.recruitment.campaign'].sudo().search(
                 domain, 
-                order='state desc, end_date asc, start_date desc'
+                order='state desc, end_date asc'
             )
             
-            # Calculer les statistiques et préparer les données
+            # Calculer les statistiques pour chaque campagne
             campaign_data = []
             for campaign in campaigns:
                 # S'assurer que les champs calculés sont à jour
@@ -59,13 +57,11 @@ class OngRecruitmentController(http.Controller):
                     delta = campaign.end_date - fields.Datetime.now()
                     days_remaining = delta.days
                 
-                # Préparer les données enrichies
                 campaign_info = {
                     'campaign': campaign,
                     'days_remaining': days_remaining,
                     'is_urgent': days_remaining is not None and days_remaining <= 7,
-                    'description_preview': campaign.get_description_preview(150),
-                    'progress_percentage': self._calculate_progress_percentage(campaign),
+                    'description_preview': self._get_description_preview(campaign, 150),
                 }
                 campaign_data.append(campaign_info)
             
@@ -98,21 +94,20 @@ class OngRecruitmentController(http.Controller):
             # Mettre à jour les statistiques
             campaign._compute_statistics()
             
-            # Calculer les informations temporelles
+            # Calculer les statistiques contextuelles
             days_remaining = None
             if campaign.end_date:
                 delta = campaign.end_date - fields.Datetime.now()
                 days_remaining = delta.days
             
-            # Préparer les données contextuelles
             values = {
                 'campaign': campaign,
                 'days_remaining': days_remaining,
                 'is_urgent': days_remaining is not None and days_remaining <= 7,
-                'can_apply': campaign.state == 'open' and (days_remaining is None or days_remaining > 0),
-                'progress_percentage': self._calculate_progress_percentage(campaign),
+                'can_apply': campaign.state == 'open' and (not days_remaining or days_remaining > 0),
                 'page_name': 'campaign_detail',
                 'page_title': f'Campagne: {campaign.name}',
+                'description_safe_html': self._get_safe_html_description(campaign),
                 'datetime': datetime,
                 'date': date,
             }
@@ -125,7 +120,7 @@ class OngRecruitmentController(http.Controller):
 
     @http.route(['/ong-recruitment/apply/<int:campaign_id>'], type='http', auth="public", website=True, methods=['GET', 'POST'])
     def apply_campaign(self, campaign_id, **kw):
-        """Formulaire de candidature à une campagne amélioré"""
+        """Formulaire de candidature à une campagne avec validation améliorée"""
         try:
             campaign = request.env['ong.recruitment.campaign'].sudo().browse(campaign_id)
             activity_domains = request.env['ong.activity.domain'].sudo().search([('active', '=', True)])
@@ -133,17 +128,18 @@ class OngRecruitmentController(http.Controller):
             if not campaign.exists() or not campaign.website_published:
                 return request.redirect('/ong-recruitment/campaigns')
             
-            # Vérifier si la campagne accepte encore les candidatures
-            if campaign.state != 'open':
-                return self._render_campaign_closed(campaign)
-            
             # Vérifier si la campagne n'est pas expirée
-            if campaign.end_date and campaign.end_date < fields.Datetime.now():
-                return self._render_campaign_expired(campaign)
+            if campaign.state != 'open' or (campaign.end_date and campaign.end_date < fields.Datetime.now()):
+                return request.render('recrutement_ongs.campaign_expired', {'campaign': campaign})
             
             if request.httprequest.method == 'POST':
-                # Traiter la soumission du formulaire avec la nouvelle méthode
+                # Traiter la soumission du formulaire
                 return self._process_application_enhanced(campaign, **kw)
+            
+            # Récupérer les messages de session
+            form_error = request.session.pop('form_error', None)
+            form_success = request.session.pop('form_success', None)
+            form_data = request.session.pop('form_data', {})
             
             values = {
                 'campaign': campaign,
@@ -151,9 +147,10 @@ class OngRecruitmentController(http.Controller):
                 'countries': request.env['res.country'].sudo().search([]),
                 'page_name': 'apply',
                 'page_title': f'Candidater: {campaign.name}',
-                'form_data': kw,
-                'error': request.session.pop('form_error', None),
-                'success': request.session.pop('form_success', None),
+                'criteria': campaign.criteria_ids,
+                'form_data': form_data,
+                'form_error': form_error,
+                'form_success': form_success,
             }
             
             return request.render('recrutement_ongs.application_form', values)
@@ -163,19 +160,21 @@ class OngRecruitmentController(http.Controller):
             return request.render('website.404')
 
     def _process_application_enhanced(self, campaign, **kw):
-        """Traiter une candidature avec validation améliorée"""
+        """Traiter une candidature avec validation renforcée"""
         try:
-            # Validation complète des données
+            # Valider les données avec la méthode existante
             self._validate_post_data(kw)
             
-            # Vérifier les doublons d'email pour cette campagne
+            # Vérifier si l'email n'a pas déjà postulé
             existing_application = request.env['ong.application'].sudo().search([
                 ('campaign_id', '=', campaign.id),
                 ('email', '=', kw.get('email', '').strip().lower())
             ])
             
             if existing_application:
-                raise ValidationError("Une candidature avec cet email existe déjà pour cette campagne")
+                request.session['form_error'] = "Une candidature avec cet email existe déjà pour cette campagne"
+                request.session['form_data'] = kw
+                return request.redirect(f'/ong-recruitment/apply/{campaign.id}')
             
             # Traitement des domaines d'activité
             activity_domains = self._process_activity_domains(kw.get('activity_domains'))
@@ -193,12 +192,14 @@ class OngRecruitmentController(http.Controller):
             # Gestion des fichiers uploadés
             self._handle_file_uploads(application, kw)
             
-            # Créer les évaluations pour chaque critère si ils existent
-            if campaign.criteria_ids:
-                self._create_criteria_evaluations(application, campaign, kw)
+            # Création des évaluations pour les critères si présents
+            self._create_criteria_evaluations(application, campaign, kw)
             
             # Soumission de la candidature (déclenche l'évaluation automatique)
-            application.action_submit()
+            if hasattr(application, 'action_submit'):
+                application.action_submit()
+            else:
+                application.write({'state': 'submitted'})
             
             _logger.info(f"Nouvelle candidature créée: {application.name} (ID: {application.id})")
             
@@ -210,18 +211,208 @@ class OngRecruitmentController(http.Controller):
         except ValidationError as e:
             _logger.warning(f"Erreur de validation lors de la soumission: {str(e)}")
             request.session['form_error'] = str(e)
+            request.session['form_data'] = kw
+            return request.redirect(f'/ong-recruitment/apply/{campaign.id}')
+        except ValueError as e:
+            _logger.warning(f"Erreur de données lors de la soumission: {str(e)}")
+            request.session['form_error'] = f"Erreur dans les données saisies: {str(e)}"
+            request.session['form_data'] = kw
             return request.redirect(f'/ong-recruitment/apply/{campaign.id}')
         except Exception as e:
-            _logger.error(f"Erreur lors du traitement de la candidature: {str(e)}")
-            request.session['form_error'] = "Une erreur s'est produite. Veuillez réessayer."
+            _logger.error(f"Erreur inattendue lors de la soumission: {str(e)}")
+            request.session['form_error'] = "Une erreur inattendue s'est produite. Veuillez réessayer."
+            request.session['form_data'] = kw
             return request.redirect(f'/ong-recruitment/apply/{campaign.id}')
 
+    def _create_criteria_evaluations(self, application, campaign, form_data):
+        """Créer les évaluations pour les critères de la campagne"""
+        try:
+            for criterion in campaign.criteria_ids:
+                response_key = f'criterion_{criterion.id}'
+                if response_key in form_data and form_data[response_key]:
+                    score = float(form_data[response_key])
+                    request.env['ong.application.evaluation'].sudo().create({
+                        'application_id': application.id,
+                        'criteria_id': criterion.id,
+                        'score': score,
+                    })
+        except Exception as e:
+            _logger.warning(f"Erreur lors de la création des évaluations critères: {e}")
+
+    @http.route(['/ong-recruitment/application/<int:application_id>/success'], type='http', auth="public", website=True)
+    def application_success(self, application_id, **kw):
+        """Page de confirmation de candidature"""
+        try:
+            application = request.env['ong.application'].sudo().browse(application_id)
+            
+            if not application.exists():
+                return request.render('website.404')
+            
+            values = {
+                'application': application,
+                'campaign': application.campaign_id,
+                'page_name': 'success',
+                'page_title': 'Candidature Soumise',
+            }
+            
+            return request.render('recrutement_ongs.application_success', values)
+            
+        except Exception as e:
+            _logger.error(f"Erreur lors de l'affichage de la confirmation: {str(e)}")
+            return request.render('website.404')
+
+    @http.route(['/ong-recruitment/search'], type='json', auth="public", website=True)
+    def search_campaigns(self, term="", **kw):
+        """Recherche AJAX de campagnes avec descriptions nettoyées"""
+        try:
+            domain = [
+                ('website_published', '=', True),
+                ('state', 'in', ['open', 'evaluation'])
+            ]
+            
+            if term:
+                domain.extend([
+                    '|', '|',
+                    ('name', 'ilike', term),
+                    ('description_text', 'ilike', term),
+                    ('description', 'ilike', term)
+                ])
+            
+            campaigns = request.env['ong.recruitment.campaign'].sudo().search(domain, limit=10)
+            
+            results = []
+            for campaign in campaigns:
+                results.append({
+                    'id': campaign.id,
+                    'name': campaign.name,
+                    'description': self._get_description_preview(campaign, 100),
+                    'end_date': campaign.end_date.strftime('%d/%m/%Y') if campaign.end_date else '',
+                    'max_selections': campaign.max_selections,
+                    'state': campaign.state,
+                    'url': f'/ong-recruitment/campaign/{campaign.id}'
+                })
+            
+            return {'campaigns': results}
+            
+        except Exception as e:
+            _logger.error(f"Erreur lors de la recherche: {str(e)}")
+            return {'error': 'Erreur de recherche'}
+
+    @http.route(['/ong-recruitment/api/campaigns'], type='json', auth='public', website=True)
+    def api_campaigns(self, **kwargs):
+        """API JSON pour récupérer les campagnes (pour AJAX)"""
+        try:
+            domain = [('website_published', '=', True)]
+            
+            # Filtres
+            if kwargs.get('state'):
+                domain.append(('state', '=', kwargs.get('state')))
+            
+            if kwargs.get('search'):
+                search_term = kwargs.get('search')
+                domain.extend([
+                    '|', '|', 
+                    ('name', 'ilike', search_term),
+                    ('description_text', 'ilike', search_term),
+                    ('description', 'ilike', search_term)
+                ])
+            
+            campaigns = request.env['ong.recruitment.campaign'].sudo().search(domain)
+            
+            # Formater les données pour JSON
+            campaigns_data = []
+            for campaign in campaigns:
+                campaigns_data.append({
+                    'id': campaign.id,
+                    'name': campaign.name,
+                    'description_preview': self._get_description_preview(campaign, 150),
+                    'state': campaign.state,
+                    'start_date': campaign.start_date.isoformat() if campaign.start_date else None,
+                    'end_date': campaign.end_date.isoformat() if campaign.end_date else None,
+                    'max_selections': campaign.max_selections,
+                    'total_applications': campaign.total_applications,
+                    'selected_applications': campaign.selected_applications,
+                })
+            
+            return {
+                'status': 'success',
+                'campaigns': campaigns_data,
+                'total': len(campaigns_data)
+            }
+            
+        except Exception as e:
+            _logger.error(f"Erreur API campagnes: {e}")
+            return {
+                'status': 'error',
+                'message': 'Erreur lors de la récupération des campagnes'
+            }
+
+    @http.route(['/ong-recruitment/application/status/<string:token>'], type='http', auth='public', website=True)
+    def application_status_by_token(self, token, **kwargs):
+        """Page de suivi du statut d'une candidature via token"""
+        try:
+            # Rechercher la candidature par token (à implémenter dans le modèle si nécessaire)
+            application = request.env['ong.application'].sudo().search([
+                ('access_token', '=', token)
+            ], limit=1)
+            
+            if not application:
+                return request.render('website.404')
+            
+            return request.render('recrutement_ongs.application_status', {
+                'application': application,
+                'campaign': application.campaign_id,
+                'page_title': 'Statut de votre candidature',
+            })
+            
+        except Exception as e:
+            _logger.error(f"Erreur lors de l'affichage du statut: {e}")
+            return request.render('website.404')
+
+    # Méthodes utilitaires pour la gestion des descriptions
+    def _get_description_preview(self, campaign, max_length=150):
+        """Retourne un aperçu de la description sans HTML"""
+        if hasattr(campaign, 'get_description_preview'):
+            return campaign.get_description_preview(max_length)
+        elif hasattr(campaign, 'description_text') and campaign.description_text:
+            text = campaign.description_text
+        elif campaign.description:
+            # Supprimer les balises HTML manuellement
+            text = re.sub('<.*?>', '', campaign.description)
+            # Décoder les entités HTML
+            import html
+            text = html.unescape(text)
+            # Nettoyer les espaces multiples
+            text = re.sub(r'\s+', ' ', text).strip()
+        else:
+            return ''
+        
+        if len(text) <= max_length:
+            return text
+        
+        # Couper au mot le plus proche
+        truncated = text[:max_length]
+        last_space = truncated.rfind(' ')
+        if last_space > max_length * 0.8:
+            truncated = truncated[:last_space]
+        
+        return truncated + '...'
+
+    def _get_safe_html_description(self, campaign):
+        """Retourne la description HTML sécurisée"""
+        if hasattr(campaign, 'get_description_safe_html'):
+            return campaign.get_description_safe_html()
+        elif campaign.description:
+            return html_sanitize(campaign.description)
+        else:
+            return ''
+
+    # Méthodes existantes conservées
     def _validate_post_data(self, post):
-        """Validation complète des données POST"""
+        """Validation des données POST"""
         required_fields = {
-            'name': 'Nom du contact',
-            'email': 'Email',
             'organization_name': 'Nom de l\'organisation',
+            'email': 'Email',
             'registration_number': 'Numéro d\'enregistrement',
             'legal_status': 'Statut légal',
             'main_activities': 'Activités principales',
@@ -229,8 +420,6 @@ class OngRecruitmentController(http.Controller):
         }
         
         errors = []
-        
-        # Validation des champs obligatoires
         for field, label in required_fields.items():
             if not post.get(field) or str(post.get(field)).strip() == '':
                 errors.append(f"Le champ '{label}' est obligatoire")
@@ -242,31 +431,15 @@ class OngRecruitmentController(http.Controller):
                 errors.append("L'adresse email n'est pas valide")
         
         # Validation des champs numériques
-        numeric_fields = {
-            'annual_budget': 'Budget annuel',
-            'staff_count': 'Nombre d\'employés',
-            'volunteer_count': 'Nombre de bénévoles',
-            'years_experience': 'Années d\'expérience'
-        }
-        
-        for field, label in numeric_fields.items():
-            if post.get(field) and str(post.get(field)).strip():
+        numeric_fields = ['annual_budget', 'staff_count', 'volunteer_count', 'years_experience']
+        for field in numeric_fields:
+            if post.get(field) and post.get(field) != '0':
                 try:
                     value = float(post.get(field)) if field == 'annual_budget' else int(post.get(field))
                     if value < 0:
-                        errors.append(f"Le champ '{label}' ne peut pas être négatif")
+                        errors.append(f"Le champ '{field}' ne peut pas être négatif")
                 except (ValueError, TypeError):
-                    errors.append(f"Le champ '{label}' doit être un nombre valide")
-        
-        # Validation de l'URL du site web
-        if post.get('website') and post.get('website').strip():
-            website = post.get('website').strip()
-            if not website.startswith(('http://', 'https://')):
-                website = 'https://' + website
-            # Validation basique de l'URL
-            url_pattern = r'^https?://[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}.*$'
-            if not re.match(url_pattern, website):
-                errors.append("L'URL du site web n'est pas valide")
+                    errors.append(f"Le champ '{field}' doit être un nombre valide")
         
         if errors:
             raise ValidationError('\n'.join(errors))
@@ -315,19 +488,12 @@ class OngRecruitmentController(http.Controller):
             except (ValueError, TypeError):
                 country_id = False
 
-        # Traitement de l'URL du site web
-        website = post.get('website', '').strip()
-        if website and not website.startswith(('http://', 'https://')):
-            website = 'https://' + website
-
         return {
             'campaign_id': campaign_id,
-            'name': post.get('name', '').strip(),
+            'name': post.get('organization_name', '').strip(),
             'email': post.get('email', '').strip().lower(),
             'phone': post.get('phone', '').strip(),
-            'website': website,
-            'organization_name': post.get('organization_name', '').strip(),
-            'organization_type': post.get('organization_type'),
+            'website': post.get('website', '').strip(),
             'street': post.get('street', '').strip(),
             'city': post.get('city', '').strip(),
             'country_id': country_id,
@@ -341,12 +507,11 @@ class OngRecruitmentController(http.Controller):
             'years_experience': safe_int(post.get('years_experience')),
             'previous_projects': post.get('previous_projects', '').strip(),
             'references': post.get('references', '').strip(),
-            'description': post.get('description', '').strip(),
             'state': 'draft',
         }
 
     def _handle_file_uploads(self, application, post):
-        """Gestion améliorée de l'upload des fichiers"""
+        """Gestion de l'upload des fichiers"""
         file_fields = [
             ('statute_document', 'statute_document'),
             ('certificate_document', 'certificate_document'),
@@ -359,10 +524,11 @@ class OngRecruitmentController(http.Controller):
                     file_data = post[post_field]
                     if hasattr(file_data, 'read'):
                         file_content = file_data.read()
-                        if file_content and len(file_content) > 0:
+                        if file_content:
                             application.write({app_field: base64.b64encode(file_content)})
-                    elif isinstance(file_data, bytes) and len(file_data) > 0:
-                        application.write({app_field: base64.b64encode(file_data)})
+                    elif isinstance(file_data, bytes):
+                        if file_data:
+                            application.write({app_field: base64.b64encode(file_data)})
                     elif isinstance(file_data, str) and file_data:
                         try:
                             base64.b64decode(file_data)
@@ -372,222 +538,40 @@ class OngRecruitmentController(http.Controller):
                 except Exception as e:
                     _logger.warning(f"Erreur lors de l'upload du fichier {post_field}: {str(e)}")
 
-    def _create_criteria_evaluations(self, application, campaign, post):
-        """Créer les évaluations pour chaque critère"""
-        for criterion in campaign.criteria_ids:
-            response_key = f'criterion_{criterion.id}'
-            if response_key in post:
-                try:
-                    score = float(post[response_key])
-                    if 0 <= score <= 100:  # Validation du score
-                        request.env['ong.application.evaluation'].sudo().create({
-                            'application_id': application.id,
-                            'criteria_id': criterion.id,
-                            'score': score,
-                        })
-                except (ValueError, TypeError):
-                    _logger.warning(f"Score invalide pour le critère {criterion.id}: {post[response_key]}")
-
-    def _calculate_progress_percentage(self, campaign):
-        """Calculer le pourcentage de progression des candidatures"""
-        if campaign.max_selections <= 0:
-            return 0
-        max_applications = campaign.max_selections * 3  # Limite à 3 fois le nombre de sélections
-        return min(100, (campaign.total_applications / max_applications) * 100)
-
-    def _render_campaign_closed(self, campaign):
-        """Rendu pour campagne fermée"""
-        return request.render('recrutement_ongs.campaign_closed', {
-            'campaign': campaign,
-            'page_title': f'Campagne fermée: {campaign.name}',
+    @http.route('/ong-recruitment/application/<int:application_id>', type='http', auth='public', website=True)
+    def application_status(self, application_id, **kwargs):
+        """Statut d'une candidature"""
+        application = request.env['ong.application'].sudo().browse(application_id)
+        
+        if not application.exists():
+            return request.render('website.404')
+        
+        return request.render('recrutement_ongs.application_status', {
+            'application': application,
+            'page_title': f'Statut - {application.name}',
         })
 
-    def _render_campaign_expired(self, campaign):
-        """Rendu pour campagne expirée"""
-        return request.render('recrutement_ongs.campaign_expired', {
-            'campaign': campaign,
-            'page_title': f'Campagne expirée: {campaign.name}',
-        })
 
-    @http.route(['/ong-recruitment/application/<int:application_id>/success'], type='http', auth="public", website=True)
-    def application_success(self, application_id, **kw):
-        """Page de confirmation de candidature améliorée"""
-        try:
-            application = request.env['ong.application'].sudo().browse(application_id)
-            
-            if not application.exists():
-                return request.render('website.404')
-            
-            # Générer un token d'accès si il n'existe pas
-            if not hasattr(application, 'access_token') or not application.access_token:
-                import secrets
-                application.sudo().write({'access_token': secrets.token_urlsafe(32)})
-            
-            values = {
-                'application': application,
-                'campaign': application.campaign_id,
-                'page_name': 'success',
-                'page_title': 'Candidature Soumise avec Succès',
-            }
-            
-            return request.render('recrutement_ongs.application_success', values)
-            
-        except Exception as e:
-            _logger.error(f"Erreur lors de l'affichage de la confirmation: {str(e)}")
-            return request.render('website.404')
+# Classe supplémentaire pour compatibilité avec l'ancien code si nécessaire
+class WebsiteOngRecruitment(http.Controller):
+    """Contrôleur de compatibilité - redirige vers les nouvelles méthodes"""
 
-    @http.route(['/ong-recruitment/application/<int:application_id>/status'], type='http', auth="public", website=True)
-    def application_status(self, application_id, token=None, **kwargs):
-        """Page de suivi du statut d'une candidature"""
-        try:
-            application = request.env['ong.application'].sudo().browse(application_id)
-            
-            if not application.exists():
-                return request.render('website.404')
-            
-            # Vérifier le token si fourni
-            if token and hasattr(application, 'access_token'):
-                if application.access_token != token:
-                    return request.render('website.403')
-            
-            values = {
-                'application': application,
-                'campaign': application.campaign_id,
-                'page_name': 'status',
-                'page_title': f'Statut de votre candidature',
-            }
-            
-            return request.render('recrutement_ongs.application_status', values)
-            
-        except Exception as e:
-            _logger.error(f"Erreur lors de l'affichage du statut: {str(e)}")
-            return request.render('website.404')
+    @http.route('/ong-recruitment', type='http', auth='public', website=True)
+    def recruitment_campaigns(self, **kwargs):
+        """Redirection vers la nouvelle méthode"""
+        return OngRecruitmentController().campaign_list(**kwargs)
 
-    @http.route(['/ong-recruitment/search'], type='json', auth="public", website=True)
-    def search_campaigns(self, term="", **kw):
-        """Recherche AJAX de campagnes améliorée"""
-        try:
-            domain = [
-                ('website_published', '=', True),
-                ('state', 'in', ['open', 'evaluation'])
-            ]
-            
-            if term:
-                domain.extend([
-                    '|', '|',
-                    ('name', 'ilike', term),
-                    ('description_text', 'ilike', term),
-                    ('organization_name', 'ilike', term)
-                ])
-            
-            campaigns = request.env['ong.recruitment.campaign'].sudo().search(domain, limit=10)
-            
-            results = []
-            for campaign in campaigns:
-                # Utiliser la nouvelle méthode de prévisualisation
-                description_preview = campaign.get_description_preview(100) if hasattr(campaign, 'get_description_preview') else (
-                    campaign.description_text[:100] + '...' if campaign.description_text else 
-                    (campaign.description[:100] + '...' if campaign.description else '')
-                )
-                
-                results.append({
-                    'id': campaign.id,
-                    'name': campaign.name,
-                    'description': description_preview,
-                    'end_date': campaign.end_date.strftime('%d/%m/%Y') if campaign.end_date else '',
-                    'max_selections': campaign.max_selections,
-                    'total_applications': campaign.total_applications,
-                    'state': campaign.state,
-                    'state_label': dict(campaign._fields['state'].selection)[campaign.state],
-                    'url': f'/ong-recruitment/campaign/{campaign.id}',
-                    'can_apply': campaign.state == 'open'
-                })
-            
-            return {
-                'status': 'success',
-                'campaigns': results,
-                'total': len(results)
-            }
-            
-        except Exception as e:
-            _logger.error(f"Erreur lors de la recherche: {str(e)}")
-            return {
-                'status': 'error',
-                'message': 'Erreur de recherche',
-                'campaigns': []
-            }
+    @http.route('/ong-recruitment/campaign/<int:campaign_id>', type='http', auth='public', website=True)
+    def campaign_detail(self, campaign_id, **kwargs):
+        """Redirection vers la nouvelle méthode"""
+        return OngRecruitmentController().campaign_detail(campaign_id, **kwargs)
 
-    @http.route(['/ong-recruitment/api/campaigns'], type='json', auth='public', website=True)
-    def api_campaigns(self, **kwargs):
-        """API JSON complète pour récupérer les campagnes"""
-        try:
-            domain = [('website_published', '=', True)]
-            
-            # Filtres
-            if kwargs.get('state'):
-                domain.append(('state', '=', kwargs.get('state')))
-            else:
-                domain.append(('state', 'in', ['open', 'evaluation']))
-            
-            if kwargs.get('search'):
-                search_term = kwargs.get('search')
-                domain.extend([
-                    '|', '|',
-                    ('name', 'ilike', search_term),
-                    ('description_text', 'ilike', search_term),
-                    ('organization_name', 'ilike', search_term)
-                ])
-            
-            # Pagination
-            limit = min(int(kwargs.get('limit', 20)), 100)  # Max 100 résultats
-            offset = int(kwargs.get('offset', 0))
-            
-            campaigns = request.env['ong.recruitment.campaign'].sudo().search(
-                domain, 
-                limit=limit, 
-                offset=offset,
-                order='state desc, end_date asc'
-            )
-            
-            # Formater les données pour JSON
-            campaigns_data = []
-            for campaign in campaigns:
-                days_remaining = None
-                if campaign.end_date:
-                    delta = campaign.end_date - fields.Datetime.now()
-                    days_remaining = delta.days
-                
-                campaigns_data.append({
-                    'id': campaign.id,
-                    'name': campaign.name,
-                    'description_preview': campaign.get_description_preview(150) if hasattr(campaign, 'get_description_preview') else '',
-                    'state': campaign.state,
-                    'state_label': dict(campaign._fields['state'].selection)[campaign.state],
-                    'start_date': campaign.start_date.isoformat() if campaign.start_date else None,
-                    'end_date': campaign.end_date.isoformat() if campaign.end_date else None,
-                    'days_remaining': days_remaining,
-                    'is_urgent': days_remaining is not None and days_remaining <= 7,
-                    'max_selections': campaign.max_selections,
-                    'total_applications': campaign.total_applications,
-                    'selected_applications': campaign.selected_applications,
-                    'progress_percentage': self._calculate_progress_percentage(campaign),
-                    'can_apply': campaign.state == 'open' and (days_remaining is None or days_remaining > 0),
-                    'url': f'/ong-recruitment/campaign/{campaign.id}',
-                    'apply_url': f'/ong-recruitment/apply/{campaign.id}' if campaign.state == 'open' else None,
-                })
-            
-            return {
-                'status': 'success',
-                'campaigns': campaigns_data,
-                'total': len(campaigns_data),
-                'has_more': len(campaigns_data) == limit
-            }
-            
-        except Exception as e:
-            _logger.error(f"Erreur API campagnes: {e}")
-            return {
-                'status': 'error',
-                'message': 'Erreur lors de la récupération des campagnes',
-                'campaigns': [],
-                'total': 0
-            }
+    @http.route('/ong-recruitment/apply/<int:campaign_id>', type='http', auth='public', website=True, csrf=True)
+    def application_form(self, campaign_id, **kwargs):
+        """Redirection vers la nouvelle méthode"""
+        return OngRecruitmentController().apply_campaign(campaign_id, **kwargs)
+
+    @http.route('/ong-recruitment/apply/<int:campaign_id>/submit', type='http', auth='public', website=True, methods=['POST'], csrf=True)
+    def submit_application(self, campaign_id, **post):
+        """Redirection vers la nouvelle méthode POST"""
+        return OngRecruitmentController().apply_campaign(campaign_id, **post)
