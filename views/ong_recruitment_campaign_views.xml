@@ -17,10 +17,21 @@
                         <button name="action_close_campaign" type="object" 
                                 string="Fermer la Campagne" invisible="state!='evaluation'" 
                                 class="btn-primary"/>
+                        <!-- <button string="Rapport Excel" name="generate_campaign_excel_report" type="object" class="btn-secondary"/>
+                        <button string="Rapport PDF" name="generate_campaign_pdf_report" type="object" class="btn-secondary"/> -->
                         <field name="state" widget="statusbar"/>
                     </header>
                     
                     <sheet>
+                        <!-- <div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button" type="object" name="action_view_applications_kanban" icon="fa-users">
+                                <field string="Candidatures" name="total_applications" widget="statinfo"/>
+                            </button>
+                            <button class="oe_stat_button" type="object" name="action_view_selected_applications" icon="fa-check">
+                                <field string="Sélectionnées" name="selected_applications" widget="statinfo"/>
+                            </button>
+                        </div> -->
+                        
                         <div class="oe_title">
                             <h1>
                                 <field name="name" placeholder="Nom de la campagne"/>

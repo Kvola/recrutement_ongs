@@ -1,18 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="1">
-        <!-- Groupe pour la gestion des recrutements ONG -->
-        <record id="group_ong_recruitment_manager" model="res.groups">
-            <field name="name">ONG Recruitment Manager</field>
-            <field name="category_id" ref="base.module_category_human_resources"/>
-        </record>
-        
-        <!-- Règles de sécurité -->
-        <record id="ong_application_rule_own" model="ir.rule">
-            <field name="name">ONG Applications: own applications</field>
-            <field name="model_id" ref="model_ong_application"/>
-            <field name="domain_force">[('create_uid','=',user.id)]</field>
-            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
-        </record>
-    </data>
+    <!-- Catégories de groupes -->
+    <record id="module_category_ong_recruitment" model="ir.module.category">
+        <field name="name">Recrutement ONGs</field>
+        <field name="description">Gestion du recrutement d'organisations non gouvernementales</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- Groupes d'utilisateurs -->
+    <record id="group_ong_user" model="res.groups">
+        <field name="name">Utilisateur ONGs</field>
+        <field name="category_id" ref="module_category_ong_recruitment"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Peut consulter et traiter les candidatures d'ONGs</field>
+    </record>
+
+    <record id="group_ong_manager" model="res.groups">
+        <field name="name">Manager ONGs</field>
+        <field name="category_id" ref="module_category_ong_recruitment"/>
+        <field name="implied_ids" eval="[(4, ref('group_ong_user'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        <field name="comment">Peut gérer les campagnes et configurer le système de recrutement</field>
+    </record>
+
+    <!-- Règles de sécurité au niveau des enregistrements -->
+    
+    <!-- Règle pour les candidatures - Les utilisateurs ne voient que les candidatures de leurs campagnes -->
+    <record id="rule_ong_application_user" model="ir.rule">
+        <field name="name">Applications: Utilisateur peut voir toutes les candidatures</field>
+        <field name="model_id" ref="model_ong_application"/>
+        <field name="groups" eval="[(4, ref('group_ong_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <!-- Règle pour les campagnes - Accès complet pour les utilisateurs -->
+    <record id="rule_ong_campaign_user" model="ir.rule">
+        <field name="name">Campaigns: Utilisateur peut voir toutes les campagnes</field>
+        <field name="model_id" ref="model_ong_recruitment_campaign"/>
+        <field name="groups" eval="[(4, ref('group_ong_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <!-- Règle pour les managers - Accès complet -->
+    <record id="rule_ong_manager_all" model="ir.rule">
+        <field name="name">Manager: Accès complet aux données ONGs</field>
+        <field name="model_id" ref="model_ong_application"/>
+        <field name="groups" eval="[(4, ref('group_ong_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <!-- Règle pour les candidatures publiques - Création seulement -->
+    <record id="rule_ong_application_public" model="ir.rule">
+        <field name="name">Applications publiques: Création seulement</field>
+        <field name="model_id" ref="model_ong_application"/>
+        <field name="groups" eval="[(4, ref('base.group_public'))]"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="domain_force">[('state', '=', 'draft')]</field>
+    </record>
+
+    <!-- Règle pour le portail - Les utilisateurs portail voient leurs propres candidatures -->
+    <record id="rule_ong_application_portal" model="ir.rule">
+        <field name="name">Applications Portal: Voir ses propres candidatures</field>
+        <field name="model_id" ref="model_ong_application"/>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="domain_force">[('email', '=', user.email)]</field>
+    </record>
+
+    <!-- Sécurité pour les évaluations -->
+    <record id="rule_ong_evaluation_user" model="ir.rule">
+        <field name="name">Evaluations: Accès utilisateur</field>
+        <field name="model_id" ref="model_ong_application_evaluation"/>
+        <field name="groups" eval="[(4, ref('group_ong_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <!-- Permissions pour les rapports -->
+    <record id="group_ong_reports" model="res.groups">
+        <field name="name">Rapports ONGs</field>
+        <field name="category_id" ref="module_category_ong_recruitment"/>
+        <field name="implied_ids" eval="[(4, ref('group_ong_user'))]"/>
+        <field name="comment">Peut générer et exporter les rapports</field>
+    </record>
+
+    <!-- Contraintes de données -->
+    <!-- <record id="constraint_unique_application_per_campaign" model="ir.model.constraint">
+        <field name="name">unique_application_per_campaign</field>
+        <field name="model" ref="model_ong_application"/>
+        <field name="type">unique</field>
+        <field name="definition">(email, campaign_id)</field>
+        <field name="message">Une ONG ne peut soumettre qu'une seule candidature par campagne.</field>
+    </record> -->
+
+    <!-- Filtres de domaine pour la sécurité -->
+    <record id="filter_active_campaigns" model="ir.filters">
+        <field name="name">Campagnes Actives</field>
+        <field name="model_id">ong.recruitment.campaign</field>
+        <field name="domain">[('state', 'in', ['open', 'evaluation'])]</field>
+        <field name="context">{}</field>
+        <field name="user_id" eval="False"/>
+        <field name="is_default" eval="True"/>
+    </record>
+
+    <record id="filter_pending_applications" model="ir.filters">
+        <field name="name">Candidatures en Attente</field>
+        <field name="model_id">ong.application</field>
+        <field name="domain">[('state', 'in', ['submitted', 'under_review'])]</field>
+        <field name="context">{}</field>
+        <field name="user_id" eval="False"/>
+        <field name="is_default" eval="True"/>
+    </record>
+
+    <!-- Configuration de l'audit et traçabilité -->
+    <record id="rule_audit_log" model="ir.rule">
+        <field name="name">Audit Log: Accès manager seulement</field>
+        <field name="model_id" ref="base.model_ir_logging"/>
+        <field name="groups" eval="[(4, ref('group_ong_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="domain_force">[('name', 'ilike', 'ong%')]</field>
+    </record>
 </odoo>

@@ -1,10 +1,18 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_ong_recruitment_campaign_user,ong.recruitment.campaign user,model_ong_recruitment_campaign,base.group_user,1,1,1,1
-access_ong_application_user,ong.application user,model_ong_application,base.group_user,1,1,1,1
-access_ong_evaluation_criteria_user,ong.evaluation.criteria user,model_ong_evaluation_criteria,base.group_user,1,1,1,1
-access_ong_application_evaluation_user,ong.application.evaluation user,model_ong_application_evaluation,base.group_user,1,1,1,1
-access_ong_activity_domain_user,ong.activity.domain user,model_ong_activity_domain,base.group_user,1,1,1,1
-access_ong_application_public,ong.application public,model_ong_application,base.group_public,1,1,1,0
-access_ong_recruitment_campaign_public,ong.recruitment.campaign public,model_ong_recruitment_campaign,base.group_public,1,0,0,0
-access_ong_evaluation_criteria_public,ong.evaluation.criteria public,model_ong_evaluation_criteria,base.group_public,1,0,0,0
-access_ong_activity_domain_public,ong.activity.domain public,model_ong_activity_domain,base.group_public,1,0,0,0
+access_ong_application_manager,ong.application.manager,model_ong_application,recrutement_ongs.group_ong_manager,1,1,1,1
+access_ong_campaign_manager,ong.recruitment.campaign.manager,model_ong_recruitment_campaign,recrutement_ongs.group_ong_manager,1,1,1,1
+access_ong_evaluation_criteria_manager,ong.evaluation.criteria.manager,model_ong_evaluation_criteria,recrutement_ongs.group_ong_manager,1,1,1,1
+access_ong_application_evaluation_manager,ong.application.evaluation.manager,model_ong_application_evaluation,recrutement_ongs.group_ong_manager,1,1,1,1
+access_ong_activity_domain_manager,ong.activity.domain.manager,model_ong_activity_domain,recrutement_ongs.group_ong_manager,1,1,1,1
+access_ong_dashboard_report_manager,ong.dashboard.report.manager,model_ong_dashboard_report,recrutement_ongs.group_ong_manager,1,1,1,1
+access_ong_export_wizard_manager,ong.export.wizard.manager,model_ong_export_wizard,recrutement_ongs.group_ong_manager,1,1,1,1
+access_ong_application_user,ong.application.user,model_ong_application,recrutement_ongs.group_ong_user,1,1,1,0
+access_ong_campaign_user,ong.recruitment.campaign.user,model_ong_recruitment_campaign,recrutement_ongs.group_ong_user,1,0,0,0
+access_ong_evaluation_criteria_user,ong.evaluation.criteria.user,model_ong_evaluation_criteria,recrutement_ongs.group_ong_user,1,0,0,0
+access_ong_application_evaluation_user,ong.application.evaluation.user,model_ong_application_evaluation,recrutement_ongs.group_ong_user,1,1,1,0
+access_ong_activity_domain_user,ong.activity.domain.user,model_ong_activity_domain,recrutement_ongs.group_ong_user,1,0,0,0
+access_ong_dashboard_report_user,ong.dashboard.report.user,model_ong_dashboard_report,recrutement_ongs.group_ong_user,1,1,1,0
+access_ong_export_wizard_user,ong.export.wizard.user,model_ong_export_wizard,recrutement_ongs.group_ong_user,1,1,1,0
+access_ong_campaign_portal,ong.recruitment.campaign.portal,model_ong_recruitment_campaign,base.group_portal,1,0,0,0
+access_ong_activity_domain_portal,ong.activity.domain.portal,model_ong_activity_domain,base.group_portal,1,0,0,0
+access_ong_application_public,ong.application.public,model_ong_application,base.group_public,0,0,1,0

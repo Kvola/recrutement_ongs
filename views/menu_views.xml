@@ -5,6 +5,13 @@
         <menuitem id="menu_ong_recruitment_root"
                   name="Recrutement ONGs"
                   sequence="10"/>
+
+        <!-- Menu principal -->
+        <menuitem id="menu_ong_dashboard_main" 
+                name="Tableau de Bord ONGs" 
+                parent="menu_ong_recruitment_root"
+                action="action_ong_dashboard"
+                sequence="1"/>
         
         <!-- Sous-menus -->
         <menuitem id="menu_ong_recruitment_campaigns"
@@ -30,5 +37,23 @@
                   parent="menu_ong_recruitment_root"
                   action="action_ong_activity_domain"
                   sequence="40"/>
+
+        <!-- Menu items pour les rapports -->
+        <menuitem id="menu_ong_reports" 
+                name="Rapports" 
+                parent="menu_ong_recruitment_root"
+                sequence="50"/>
+
+        <menuitem id="menu_ong_export_wizard" 
+                name="Exporter Données" 
+                parent="menu_ong_reports"
+                action="action_ong_export_wizard"
+                sequence="10"/>
+
+        <!-- <menuitem id="menu_ong_dashboard_reports" 
+                name="Tableau de Bord" 
+                parent="menu_ong_reports"
+                action="action_ong_dashboard"
+                sequence="5"/> -->
     </data>
 </odoo>

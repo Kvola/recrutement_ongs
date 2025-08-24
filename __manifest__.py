@@ -14,17 +14,27 @@ Module complet pour le recrutement d'ONGs permettant:
     'website': 'https://www.iyf.ci',
     'depends': ['base', 'website', 'mail', 'portal'],
     'data': [
-        'security/ir.model.access.csv',
         'security/security.xml',
+        'security/ir.model.access.csv',
         'data/evaluation_criteria_data.xml',
         'views/ong_recruitment_campaign_views.xml',
         'views/ong_application_views.xml',
         'views/ong_evaluation_criteria_views.xml',
         'data/activity_domains_data.xml',
         'data/cron_data.xml',
+        'wizards/ong_export_wizard_views.xml',
+        'reports/ong_dashboard_reports.xml',
+        'views/dashboard_views.xml',
         'views/website_templates.xml',
         'views/menu_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'recrutement_ongs/static/src/css/dashboard.css',
+            'recrutement_ongs/static/src/js/dashboard_widget.js',
+            'recrutement_ongs/static/src/xml/dashboard_templates.xml',
+        ],
+    },
     'demo': [
         'demo/demo_campaigns.xml',
         'demo/demo_applications.xml',
@@ -34,4 +44,6 @@ Module complet pour le recrutement d'ONGs permettant:
     'auto_install': False,
     'application': True,
     'license': 'LGPL-3',
+    'post_init_hook': 'post_init_hook',
+    'uninstall_hook': 'uninstall_hook',
 }

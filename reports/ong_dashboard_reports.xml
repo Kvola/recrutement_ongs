@@ -1,0 +1,145 @@
+<odoo>
+    <!-- Template PDF pour le rapport dashboard -->
+    <template id="report_dashboard_pdf_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <!-- Header -->
+                    <div class="text-center mb-4">
+                        <h1>Tableau de Bord - Recrutement ONGs</h1>
+                        <p class="text-muted">Rapport généré le <span t-esc="generate_date"/></p>
+                    </div>
+
+                    <!-- Statistiques principales -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h3>Indicateurs Clés</h3>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <td><strong>Total Campagnes</strong></td>
+                                    <td t-esc="data['stats']['total_campaigns']"/>
+                                </tr>
+                                <tr>
+                                    <td><strong>Campagnes Actives</strong></td>
+                                    <td t-esc="data['stats']['active_campaigns']"/>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total Candidatures</strong></td>
+                                    <td t-esc="data['stats']['total_applications']"/>
+                                </tr>
+                                <tr>
+                                    <td><strong>ONGs Sélectionnées</strong></td>
+                                    <td t-esc="data['stats']['selected_ongs']"/>
+                                </tr>
+                                <tr>
+                                    <td><strong>Candidatures en Attente</strong></td>
+                                    <td t-esc="data['stats']['pending_applications']"/>
+                                </tr>
+                                <tr>
+                                    <td><strong>Candidatures Rejetées</strong></td>
+                                    <td t-esc="data['stats']['rejected_applications']"/>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Répartition par état -->
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <h4>Répartition par État</h4>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>État</th>
+                                        <th>Nombre</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="zip(data['charts']['applications_by_state']['labels'], data['charts']['applications_by_state']['data'])" t-as="item">
+                                        <td t-esc="item[0]"/>
+                                        <td t-esc="item[1]"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="col-6">
+                            <h4>Top 5 Pays</h4>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Pays</th>
+                                        <th>Candidatures</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="zip(data['charts']['applications_by_country']['labels'], data['charts']['applications_by_country']['data'])" t-as="item">
+                                        <td t-esc="item[0]"/>
+                                        <td t-esc="item[1]"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Distribution des scores -->
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <h4>Distribution des Scores</h4>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Plage</th>
+                                        <th>Nombre d'ONGs</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="zip(data['charts']['score_distribution']['labels'], data['charts']['score_distribution']['data'])" t-as="item">
+                                        <td t-esc="item[0]"/>
+                                        <td t-esc="item[1]"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="col-6">
+                            <h4>Domaines d'Activité Populaires</h4>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Domaine</th>
+                                        <th>Candidatures</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="zip(data['charts']['top_activity_domains']['labels'], data['charts']['top_activity_domains']['data'])" t-as="item">
+                                        <td t-esc="item[0]"/>
+                                        <td t-esc="item[1]"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="text-center mt-5">
+                        <small class="text-muted">
+                            Ce rapport a été généré automatiquement par le système de recrutement d'ONGs.
+                        </small>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- Action du rapport PDF -->
+    <record id="action_report_dashboard_pdf" model="ir.actions.report">
+        <field name="name">Tableau de Bord PDF</field>
+        <field name="model">ong.dashboard.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">recrutement_ongs.report_dashboard_pdf_template</field>
+        <field name="report_file">recrutement_ongs.report_dashboard_pdf_template</field>
+        <field name="binding_model_id" ref="model_ong_dashboard_report"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

@@ -123,7 +123,6 @@ class OngRecruitmentController(http.Controller):
         """Formulaire de candidature à une campagne avec validation améliorée"""
         try:
             campaign = request.env['ong.recruitment.campaign'].sudo().browse(campaign_id)
-            activity_domains = request.env['ong.activity.domain'].sudo().search([('active', '=', True)])
             
             if not campaign.exists() or not campaign.website_published:
                 return request.redirect('/ong-recruitment/campaigns')
@@ -136,14 +135,25 @@ class OngRecruitmentController(http.Controller):
                 # Traiter la soumission du formulaire
                 return self._process_application_enhanced(campaign, **kw)
             
+            # Récupérer les domaines d'activités actifs
+            activity_domains = request.env['ong.activity.domain'].sudo().search([
+                ('active', '=', True)
+            ], order='name asc')
+            
             # Récupérer les messages de session
             form_error = request.session.pop('form_error', None)
             form_success = request.session.pop('form_success', None)
             form_data = request.session.pop('form_data', {})
             
+            # Traiter les domaines d'activités pré-sélectionnés (pour pré-remplissage)
+            selected_domains = []
+            if 'activity_domains' in form_data:
+                selected_domains = self._process_activity_domains_for_display(form_data['activity_domains'])
+            
             values = {
                 'campaign': campaign,
                 'activity_domains': activity_domains,
+                'selected_domains': selected_domains,
                 'countries': request.env['res.country'].sudo().search([]),
                 'page_name': 'apply',
                 'page_title': f'Candidater: {campaign.name}',
@@ -177,7 +187,7 @@ class OngRecruitmentController(http.Controller):
                 return request.redirect(f'/ong-recruitment/apply/{campaign.id}')
             
             # Traitement des domaines d'activité
-            activity_domains = self._process_activity_domains(kw.get('activity_domains'))
+            activity_domains_ids = self._process_activity_domains(kw.get('activity_domains'))
             
             # Préparation des valeurs pour la création
             application_vals = self._prepare_application_values(campaign.id, kw)
@@ -186,8 +196,9 @@ class OngRecruitmentController(http.Controller):
             application = request.env['ong.application'].sudo().create(application_vals)
             
             # Gestion des domaines d'activité
-            if activity_domains:
-                application.write({'activity_domains': [(6, 0, activity_domains)]})
+            if activity_domains_ids:
+                application.write({'activity_domains': [(6, 0, activity_domains_ids)]})
+                _logger.info(f"Domaines d'activités attachés à la candidature {application.id}: {activity_domains_ids}")
             
             # Gestion des fichiers uploadés
             self._handle_file_uploads(application, kw)
@@ -224,18 +235,91 @@ class OngRecruitmentController(http.Controller):
             request.session['form_data'] = kw
             return request.redirect(f'/ong-recruitment/apply/{campaign.id}')
 
+    def _process_activity_domains(self, activity_domains_data):
+        """Traitement des domaines d'activité avec gestion robuste de tous les formats"""
+        if not activity_domains_data:
+            return []
+        
+        domain_ids = []
+        try:
+            # Gestion des différents formats possibles
+            if isinstance(activity_domains_data, list):
+                # Cas 1: Liste de valeurs (format standard des checkboxes multiples)
+                for domain_data in activity_domains_data:
+                    try:
+                        if isinstance(domain_data, (int, str)) and str(domain_data).isdigit():
+                            domain_id = int(domain_data)
+                            if domain_id > 0:  # Vérifier que l'ID est valide
+                                domain_ids.append(domain_id)
+                    except (ValueError, TypeError):
+                        continue
+                        
+            elif isinstance(activity_domains_data, str):
+                # Cas 2: Chaîne de caractères (peut être séparée par des virgules)
+                if activity_domains_data.strip():
+                    if ',' in activity_domains_data:
+                        # Chaîne séparée par des virgules
+                        for domain_str in activity_domains_data.split(','):
+                            domain_str = domain_str.strip()
+                            if domain_str.isdigit():
+                                domain_id = int(domain_str)
+                                if domain_id > 0:
+                                    domain_ids.append(domain_id)
+                    else:
+                        # Chaîne simple
+                        if activity_domains_data.strip().isdigit():
+                            domain_id = int(activity_domains_data.strip())
+                            if domain_id > 0:
+                                domain_ids.append(domain_id)
+                                
+            elif isinstance(activity_domains_data, int):
+                # Cas 3: Entier simple
+                if activity_domains_data > 0:
+                    domain_ids.append(activity_domains_data)
+            
+            # Vérifier que les IDs existent réellement dans la base de données
+            if domain_ids:
+                existing_domains = request.env['ong.activity.domain'].sudo().search([
+                    ('id', 'in', domain_ids),
+                    ('active', '=', True)
+                ])
+                domain_ids = existing_domains.ids
+                _logger.info(f"Domaines d'activités traités: {domain_ids}")
+            
+        except Exception as e:
+            _logger.warning(f"Erreur lors du traitement des domaines d'activité: {activity_domains_data} - {str(e)}")
+            domain_ids = []
+        
+        return domain_ids
+
+    def _process_activity_domains_for_display(self, activity_domains_data):
+        """Traitement des domaines d'activité pour l'affichage (pré-remplissage du formulaire)"""
+        domain_ids = self._process_activity_domains(activity_domains_data)
+        
+        if domain_ids:
+            domains = request.env['ong.activity.domain'].sudo().browse(domain_ids)
+            return domains.filtered('active')
+        
+        return request.env['ong.activity.domain'].sudo().browse()
+
     def _create_criteria_evaluations(self, application, campaign, form_data):
         """Créer les évaluations pour les critères de la campagne"""
         try:
             for criterion in campaign.criteria_ids:
                 response_key = f'criterion_{criterion.id}'
                 if response_key in form_data and form_data[response_key]:
-                    score = float(form_data[response_key])
-                    request.env['ong.application.evaluation'].sudo().create({
-                        'application_id': application.id,
-                        'criteria_id': criterion.id,
-                        'score': score,
-                    })
+                    try:
+                        score = float(form_data[response_key])
+                        # Valider que le score ne dépasse pas le maximum
+                        score = min(score, criterion.max_score)
+                        request.env['ong.application.evaluation'].sudo().create({
+                            'application_id': application.id,
+                            'criteria_id': criterion.id,
+                            'score': score,
+                        })
+                        _logger.info(f"Évaluation créée pour le critère {criterion.name}: {score}/{criterion.max_score}")
+                    except (ValueError, TypeError) as e:
+                        _logger.warning(f"Score invalide pour le critère {criterion.name}: {form_data[response_key]} - {str(e)}")
         except Exception as e:
             _logger.warning(f"Erreur lors de la création des évaluations critères: {e}")
 
@@ -407,9 +491,9 @@ class OngRecruitmentController(http.Controller):
         else:
             return ''
 
-    # Méthodes existantes conservées
+    # Méthodes existantes conservées avec améliorations
     def _validate_post_data(self, post):
-        """Validation des données POST"""
+        """Validation des données POST avec vérification des domaines d'activités"""
         required_fields = {
             'organization_name': 'Nom de l\'organisation',
             'email': 'Email',
@@ -441,27 +525,13 @@ class OngRecruitmentController(http.Controller):
                 except (ValueError, TypeError):
                     errors.append(f"Le champ '{field}' doit être un nombre valide")
         
+        # Validation des domaines d'activités
+        activity_domains = post.get('activity_domains')
+        if not activity_domains or len(self._process_activity_domains(activity_domains)) == 0:
+            errors.append("Au moins un domaine d'activité doit être sélectionné")
+        
         if errors:
             raise ValidationError('\n'.join(errors))
-
-    def _process_activity_domains(self, activity_domains_data):
-        """Traitement des domaines d'activité"""
-        if not activity_domains_data:
-            return []
-        
-        try:
-            if isinstance(activity_domains_data, list):
-                return [int(d) for d in activity_domains_data if str(d).isdigit()]
-            elif isinstance(activity_domains_data, str):
-                if activity_domains_data.isdigit():
-                    return [int(activity_domains_data)]
-                else:
-                    return [int(d.strip()) for d in activity_domains_data.split(',') if d.strip().isdigit()]
-            else:
-                return [int(activity_domains_data)]
-        except (ValueError, TypeError):
-            _logger.warning(f"Erreur lors du traitement des domaines d'activité: {activity_domains_data}")
-            return []
 
     def _prepare_application_values(self, campaign_id, post):
         """Préparation des valeurs pour la création de la candidature"""
@@ -551,6 +621,34 @@ class OngRecruitmentController(http.Controller):
             'page_title': f'Statut - {application.name}',
         })
 
+    @http.route(['/ong-recruitment/api/activity-domains'], type='json', auth='public', website=True)
+    def api_activity_domains(self, **kwargs):
+        """API pour récupérer les domaines d'activités (utile pour AJAX)"""
+        try:
+            domains = request.env['ong.activity.domain'].sudo().search([
+                ('active', '=', True)
+            ], order='name asc')
+            
+            domains_data = []
+            for domain in domains:
+                domains_data.append({
+                    'id': domain.id,
+                    'name': domain.name,
+                    'description': domain.description or '',
+                })
+            
+            return {
+                'status': 'success',
+                'domains': domains_data,
+                'total': len(domains_data)
+            }
+            
+        except Exception as e:
+            _logger.error(f"Erreur API domaines d'activités: {e}")
+            return {
+                'status': 'error',
+                'message': 'Erreur lors de la récupération des domaines d\'activités'
+            }
 
 # Classe supplémentaire pour compatibilité avec l'ancien code si nécessaire
 class WebsiteOngRecruitment(http.Controller):

@@ -1,0 +1,36 @@
+<odoo>
+    <!-- Vues pour les rapports Excel personnalisés -->
+    <record id="view_ong_export_wizard_form" model="ir.ui.view">
+        <field name="name">ong.export.wizard.form</field>
+        <field name="model">ong.export.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Exporter les Données">
+                <group>
+                    <group>
+                        <field name="export_type" widget="radio"/>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                    <group>
+                        <field name="campaign_ids" widget="many2many_tags"/>
+                        <field name="include_scores"/>
+                        <field name="include_evaluations"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="Exporter Excel" name="export_excel" type="object" class="btn-primary"/>
+                    <button string="Exporter PDF" name="export_pdf" type="object" class="btn-secondary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action pour l'assistant d'export -->
+    <record id="action_ong_export_wizard" model="ir.actions.act_window">
+        <field name="name">Exporter les Données</field>
+        <field name="res_model">ong.export.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

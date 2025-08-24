@@ -857,12 +857,7 @@
                                                         <i class="fa fa-list-alt text-primary mr-2"></i>
                                                         Activités Principales *
                                                     </label>
-                                                    <textarea class="form-control form-control-lg" name="main_activities" rows="5" 
-                                                              required="required" placeholder="Décrivez en détail les activités principales de votre organisation...">
-                                                        <t t-if="form_data.get('main_activities', '')">
-                                                            <t t-esc="form_data.get('main_activities', '')"/>
-                                                        </t>
-                                                    </textarea>
+                                                    <textarea class="form-control form-control-lg" name="main_activities" rows="5" required="required" placeholder="Décrivez en détail les activités principales de votre organisation..."><t t-if="form_data.get('main_activities', '')"><t t-esc="form_data.get('main_activities', '')"/></t></textarea>
                                                     <small class="form-text text-muted">
                                                         Minimum 100 caractères recommandés
                                                     </small>
@@ -893,7 +888,7 @@
                                                                     <span class="input-group-text">CFA</span>
                                                                 </div>
                                                                 <input type="number" class="form-control" name="annual_budget" 
-                                                                       step="0.01" placeholder="Ex: 150000"
+                                                                       step="0.01" placeholder="Ex: 150 000"
                                                                        t-att-value="form_data.get('annual_budget', '')"/>
                                                             </div>
                                                         </div>
@@ -915,12 +910,7 @@
                                                         <i class="fa fa-bank text-success mr-2"></i>
                                                         Sources de Financement
                                                     </label>
-                                                    <textarea class="form-control form-control-lg" name="funding_sources" rows="4" 
-                                                              placeholder="Ex: Subventions publiques, donations privées, partenariats...">
-                                                        <t t-if="form_data.get('funding_sources', '')">
-                                                            <t t-esc="form_data.get('funding_sources', '')"/>
-                                                        </t>
-                                                    </textarea>
+                                                    <textarea class="form-control form-control-lg" name="funding_sources" rows="4" placeholder="Ex: Subventions publiques, donations privées, partenariats..."><t t-if="form_data.get('funding_sources', '')"><t t-esc="form_data.get('funding_sources', '')"/></t></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -1029,12 +1019,7 @@
                                                         <i class="fa fa-project-diagram text-warning mr-2"></i>
                                                         Projets Précédents
                                                     </label>
-                                                    <textarea class="form-control form-control-lg" name="previous_projects" rows="5" 
-                                                              placeholder="Décrivez vos projets les plus significatifs, leurs impacts et résultats...">
-                                                        <t t-if="form_data.get('previous_projects', '')">
-                                                            <t t-esc="form_data.get('previous_projects', '')"/>
-                                                        </t>
-                                                    </textarea>
+                                                    <textarea class="form-control form-control-lg" name="previous_projects" rows="5" placeholder="Décrivez vos projets les plus significatifs, leurs impacts et résultats..."><t t-if="form_data.get('previous_projects', '')"><t t-esc="form_data.get('previous_projects', '')"/></t></textarea>
                                                 </div>
                                                 
                                                 <div class="form-group mb-0">
@@ -1042,12 +1027,7 @@
                                                         <i class="fa fa-address-book text-warning mr-2"></i>
                                                         Références
                                                     </label>
-                                                    <textarea class="form-control form-control-lg" name="references" rows="3" 
-                                                              placeholder="Contacts de partenaires, bailleurs de fonds, ou autres organisations...">
-                                                        <t t-if="form_data.get('references', '')">
-                                                            <t t-esc="form_data.get('references', '')"/>
-                                                        </t>
-                                                    </textarea>
+                                                    <textarea class="form-control form-control-lg" name="references" rows="3" placeholder="Contacts de partenaires, bailleurs de fonds, ou autres organisations..."><t t-if="form_data.get('references', '')"><t t-esc="form_data.get('references', '')"/></t></textarea>
                                                 </div>
                                             </div>
                                         </div>
