@@ -1,316 +1,330 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates>
     <t t-name="recrutement_ongs.DashboardWidget" owl="1">
-        <div class="ong-dashboard">
-            <!-- Header -->
-            <div class="dashboard-header d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h1 class="mb-0">Tableau de Bord - Recrutement ONGs</h1>
-                    <p class="text-muted mb-0">Vue d'ensemble des candidatures et campagnes</p>
-                </div>
-                <div class="btn-group">
-                    <button class="btn btn-primary" t-on-click="refreshData">
-                        <i class="fa fa-refresh me-1"/>Actualiser
-                    </button>
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-outline-secondary dropdown-toggle" 
-                                data-bs-toggle="dropdown">
-                            <i class="fa fa-download me-1"/>Exporter
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" t-on-click="() => this.exportDashboard('pdf')">
-                                <i class="fa fa-file-pdf-o me-2"/>PDF</a></li>
-                            <li><a class="dropdown-item" t-on-click="() => this.exportDashboard('excel')">
-                                <i class="fa fa-file-excel-o me-2"/>Excel</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Loading State -->
-            <div t-if="state.loading" class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Chargement...</span>
-                </div>
-                <p class="mt-3">Chargement des données...</p>
-            </div>
-
-            <!-- Error State -->
-            <div t-if="state.error" class="alert alert-danger">
-                <h4>Erreur</h4>
-                <p t-esc="state.error"/>
-                <button class="btn btn-outline-danger" t-on-click="refreshData">
-                    Réessayer
-                </button>
-            </div>
-
-            <!-- Dashboard Content -->
-            <div t-if="!state.loading and !state.error and state.data.stats">
+        <div class="ong-dashboard-container" style="height: 100vh; overflow-y: auto; background: #f8f9fa;">
+            <div class="ong-dashboard" style="padding: 1rem; max-width: 1400px; margin: 0 auto;">
                 
-                <!-- KPI Cards -->
-                <div class="row mb-4">
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <div class="card kpi-card border-primary">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center">
-                                    <div class="kpi-icon bg-primary">
-                                        <i class="fa fa-bullhorn"/>
-                                    </div>
-                                    <div class="ms-3">
-                                        <div class="kpi-value" t-esc="state.data.stats.total_campaigns"/>
-                                        <div class="kpi-label">Campagnes Total</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Header Compact -->
+                <div class="dashboard-header d-flex justify-content-between align-items-center mb-3 p-3 bg-white rounded shadow-sm">
+                    <div>
+                        <h4 class="mb-1 text-dark fw-bold" style="color: #ffffff !important;">Tableau de Bord</h4>
+                        <small class="text-muted" style="color: #ffffff !important;">Recrutement ONGs</small>
                     </div>
-                    
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <div class="card kpi-card border-success">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center">
-                                    <div class="kpi-icon bg-success">
-                                        <i class="fa fa-play-circle"/>
-                                    </div>
-                                    <div class="ms-3">
-                                        <div class="kpi-value" t-esc="state.data.stats.active_campaigns"/>
-                                        <div class="kpi-label">Campagnes Actives</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <div class="card kpi-card border-info">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center">
-                                    <div class="kpi-icon bg-info">
-                                        <i class="fa fa-file-text"/>
-                                    </div>
-                                    <div class="ms-3">
-                                        <div class="kpi-value" t-esc="state.data.stats.total_applications"/>
-                                        <div class="kpi-label">Candidatures Total</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <div class="card kpi-card border-warning">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center">
-                                    <div class="kpi-icon bg-warning">
-                                        <i class="fa fa-check-circle"/>
-                                    </div>
-                                    <div class="ms-3">
-                                        <div class="kpi-value" t-esc="state.data.stats.selected_ongs"/>
-                                        <div class="kpi-label">ONGs Sélectionnées</div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary" t-on-click="refreshData" style="color: #ffffff !important;">
+                            <i class="fa fa-refresh me-1"/>Actualiser
+                        </button>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                    data-bs-toggle="dropdown" style="color: #ffffff !important;">
+                                <i class="fa fa-download me-1"/>Export
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" t-on-click="() => this.exportDashboard('pdf')">
+                                    <i class="fa fa-file-pdf me-2"/>PDF</a></li>
+                                <li><a class="dropdown-item" t-on-click="() => this.exportDashboard('excel')">
+                                    <i class="fa fa-file-excel me-2"/>Excel</a></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
 
-                <!-- Charts Section -->
-                <div class="row mb-4">
-                    <div class="col-lg-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h5 class="mb-0">Candidatures par État</h5>
-                            </div>
-                            <div class="card-body d-flex justify-content-center">
-                                <canvas id="statesChart" style="max-height: 300px;"/>
-                            </div>
-                        </div>
+                <!-- Loading State -->
+                <div t-if="state.loading" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;">
+                        <span class="visually-hidden">Chargement...</span>
                     </div>
+                    <p class="mt-2 text-muted">Chargement des données...</p>
+                </div>
+
+                <!-- Error State -->
+                <div t-if="state.error" class="alert alert-danger mx-3">
+                    <i class="fa fa-exclamation-triangle me-2"/>
+                    <strong>Erreur:</strong> <span t-esc="state.error"/>
+                    <button class="btn btn-sm btn-outline-danger ms-2" t-on-click="refreshData">
+                        Réessayer
+                    </button>
+                </div>
+
+                <!-- Dashboard Content -->
+                <div t-if="!state.loading and !state.error and state.data.stats" class="dashboard-content">
                     
-                    <div class="col-lg-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h5 class="mb-0">Top 5 Pays</h5>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="countriesChart" style="max-height: 300px;"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mb-4">
-                    <div class="col-12 mb-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="mb-0">Évolution Mensuelle des Candidatures</h5>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="monthlyChart" style="max-height: 300px;"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mb-4">
-                    <div class="col-lg-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h5 class="mb-0">Distribution des Scores</h5>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="scoreChart" style="max-height: 300px;"/>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h5 class="mb-0">Domaines d'Activité Populaires</h5>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="domainsChart" style="max-height: 300px;"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tables Section -->
-                <div class="row">
-                    <div class="col-lg-6 mb-4">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">Campagnes Récentes</h5>
-                                <button class="btn btn-sm btn-outline-primary" t-on-click="openCampaignsList">
-                                    Voir tout
-                                </button>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Nom</th>
-                                                <th>État</th>
-                                                <th>Candidatures</th>
-                                                <th>Fin</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr t-foreach="state.data.recent_campaigns" t-as="campaign" t-key="campaign.id"
-                                                class="cursor-pointer" 
-                                                t-on-click="() => this.openCampaign(campaign.id)">
-                                                <td>
-                                                    <strong t-esc="campaign.name"/>
-                                                </td>
-                                                <td>
-                                                    <span t-attf-class="badge bg-{{ getStateColor(campaign.state) }}" 
-                                                          t-esc="campaign.state_label"/>
-                                                </td>
-                                                <td>
-                                                    <span t-esc="campaign.total_applications"/>
-                                                    <span t-if="campaign.selected_applications > 0" 
-                                                          class="text-success">
-                                                        (<t t-esc="campaign.selected_applications"/> sélectionnées)
-                                                    </span>
-                                                </td>
-                                                <td class="text-muted" t-esc="campaign.end_date"/>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-6 mb-4">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">Candidatures Récentes</h5>
-                                <button class="btn btn-sm btn-outline-primary" t-on-click="openApplicationsList">
-                                    Voir tout
-                                </button>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>ONG</th>
-                                                <th>État</th>
-                                                <th>Score</th>
-                                                <th>Date</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr t-foreach="state.data.recent_applications" t-as="app" t-key="app.id"
-                                                class="cursor-pointer"
-                                                t-on-click="() => this.openApplication(app.id)">
-                                                <td>
-                                                    <strong t-esc="app.name"/>
-                                                    <br/>
-                                                    <small class="text-muted" t-esc="app.country"/>
-                                                </td>
-                                                <td>
-                                                    <span t-attf-class="badge bg-{{ getStateColor(app.state) }}" 
-                                                          t-esc="app.state_label"/>
-                                                </td>
-                                                <td>
-                                                    <span t-if="app.total_score > 0" 
-                                                          t-attf-class="fw-bold {{ app.total_score >= 70 ? 'text-success' : app.total_score >= 50 ? 'text-warning' : 'text-danger' }}"
-                                                          t-esc="Math.round(app.total_score * 100) / 100"/>
-                                                    <span t-else="" class="text-muted">-</span>
-                                                </td>
-                                                <td class="text-muted" t-esc="app.submission_date"/>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Additional Stats -->
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="mb-0">Statistiques Détaillées</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row text-center">
-                                    <div class="col-md-3 mb-3">
-                                        <div class="stat-item">
-                                            <div class="stat-value text-info" t-esc="state.data.stats.pending_applications"/>
-                                            <div class="stat-label">En Attente</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <div class="stat-item">
-                                            <div class="stat-value text-danger" t-esc="state.data.stats.rejected_applications"/>
-                                            <div class="stat-label">Rejetées</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <div class="stat-item">
-                                            <div class="stat-value text-success">
-                                                <t t-if="state.data.stats.total_applications > 0" 
-                                                   t-esc="Math.round((state.data.stats.selected_ongs / state.data.stats.total_applications) * 100)"/>
-                                                <t t-else="">0</t>%
+                    <!-- KPI Cards - Compact -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-6 col-md-3">
+                            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #3498db !important;">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center" 
+                                                 style="width: 40px; height: 40px; background: #3498db20;">
+                                                <i class="fa fa-bullhorn text-primary"/>
                                             </div>
-                                            <div class="stat-label">Taux de Sélection</div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <h5 class="mb-0 fw-bold" t-esc="state.data.stats.total_campaigns"/>
+                                            <small class="text-muted">Campagnes</small>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 mb-3">
-                                        <div class="stat-item">
-                                            <div class="stat-value text-warning">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-6 col-md-3">
+                            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #27ae60 !important;">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center" 
+                                                 style="width: 40px; height: 40px; background: #27ae6020;">
+                                                <i class="fa fa-play-circle text-success"/>
+                                            </div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <h5 class="mb-0 fw-bold" t-esc="state.data.stats.active_campaigns"/>
+                                            <small class="text-muted">Actives</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-6 col-md-3">
+                            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #f39c12 !important;">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center" 
+                                                 style="width: 40px; height: 40px; background: #f39c1220;">
+                                                <i class="fa fa-file-text text-warning"/>
+                                            </div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <h5 class="mb-0 fw-bold" t-esc="state.data.stats.total_applications"/>
+                                            <small class="text-muted">Candidatures</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-6 col-md-3">
+                            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #e74c3c !important;">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center" 
+                                                 style="width: 40px; height: 40px; background: #e74c3c20;">
+                                                <i class="fa fa-check-circle text-danger"/>
+                                            </div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <h5 class="mb-0 fw-bold" t-esc="state.data.stats.selected_ongs"/>
+                                            <small class="text-muted">Sélectionnées</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section - Compact Grid -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-transparent border-0 pb-0">
+                                    <h6 class="mb-0 text-dark">Candidatures par État</h6>
+                                </div>
+                                <div class="card-body p-2">
+                                    <canvas id="statesChart" style="max-height: 200px;"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-transparent border-0 pb-0">
+                                    <h6 class="mb-0 text-dark">Top 5 Pays</h6>
+                                </div>
+                                <div class="card-body p-2">
+                                    <canvas id="countriesChart" style="max-height: 200px;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-transparent border-0 pb-0">
+                                    <h6 class="mb-0 text-dark">Évolution Mensuelle</h6>
+                                </div>
+                                <div class="card-body p-2">
+                                    <canvas id="monthlyChart" style="max-height: 180px;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-transparent border-0 pb-0">
+                                    <h6 class="mb-0 text-dark">Distribution des Scores</h6>
+                                </div>
+                                <div class="card-body p-2">
+                                    <canvas id="scoreChart" style="max-height: 200px;"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-transparent border-0 pb-0">
+                                    <h6 class="mb-0 text-dark">Domaines d'Activité</h6>
+                                </div>
+                                <div class="card-body p-2">
+                                    <canvas id="domainsChart" style="max-height: 200px;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tables Section - Compact -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center py-2">
+                                    <h6 class="mb-0 text-dark">Campagnes Récentes</h6>
+                                    <button class="btn btn-sm btn-link p-0 text-decoration-none" t-on-click="openCampaignsList">
+                                        Voir tout <i class="fa fa-arrow-right ms-1"/>
+                                    </button>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                        <table class="table table-hover mb-0" style="font-size: 13px;">
+                                            <thead class="bg-light sticky-top">
+                                                <tr>
+                                                    <th class="border-0 py-2">Nom</th>
+                                                    <th class="border-0 py-2">État</th>
+                                                    <th class="border-0 py-2">Cand.</th>
+                                                    <th class="border-0 py-2">Fin</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr t-foreach="state.data.recent_campaigns" t-as="campaign" t-key="campaign.id"
+                                                    class="cursor-pointer" 
+                                                    t-on-click="() => this.openCampaign(campaign.id)"
+                                                    style="border-bottom: 1px solid #f1f3f4;">
+                                                    <td class="py-2">
+                                                        <div class="fw-medium text-truncate" style="max-width: 150px;" t-esc="campaign.name"/>
+                                                    </td>
+                                                    <td class="py-2">
+                                                        <span t-attf-class="badge rounded-pill bg-{{ getStateColor(campaign.state) }}" 
+                                                              style="font-size: 10px;" t-esc="campaign.state_label"/>
+                                                    </td>
+                                                    <td class="py-2">
+                                                        <span t-esc="campaign.total_applications"/>
+                                                        <span t-if="campaign.selected_applications > 0" 
+                                                              class="text-success small">
+                                                            (<t t-esc="campaign.selected_applications"/>)
+                                                        </span>
+                                                    </td>
+                                                    <td class="py-2 text-muted small" t-esc="campaign.end_date"/>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center py-2">
+                                    <h6 class="mb-0 text-dark">Candidatures Récentes</h6>
+                                    <button class="btn btn-sm btn-link p-0 text-decoration-none" t-on-click="openApplicationsList">
+                                        Voir tout <i class="fa fa-arrow-right ms-1"/>
+                                    </button>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                        <table class="table table-hover mb-0" style="font-size: 13px;">
+                                            <thead class="bg-light sticky-top">
+                                                <tr>
+                                                    <th class="border-0 py-2">ONG</th>
+                                                    <th class="border-0 py-2">État</th>
+                                                    <th class="border-0 py-2">Score</th>
+                                                    <th class="border-0 py-2">Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr t-foreach="state.data.recent_applications" t-as="app" t-key="app.id"
+                                                    class="cursor-pointer"
+                                                    t-on-click="() => this.openApplication(app.id)"
+                                                    style="border-bottom: 1px solid #f1f3f4;">
+                                                    <td class="py-2">
+                                                        <div class="fw-medium text-truncate" style="max-width: 120px;" t-esc="app.name"/>
+                                                        <small class="text-muted d-block" t-esc="app.country"/>
+                                                    </td>
+                                                    <td class="py-2">
+                                                        <span t-attf-class="badge rounded-pill bg-{{ getStateColor(app.state) }}" 
+                                                              style="font-size: 10px;" t-esc="app.state_label"/>
+                                                    </td>
+                                                    <td class="py-2">
+                                                        <span t-if="app.total_score > 0" 
+                                                              t-attf-class="fw-bold small {{ app.total_score >= 70 ? 'text-success' : app.total_score >= 50 ? 'text-warning' : 'text-danger' }}"
+                                                              t-esc="Math.round(app.total_score * 100) / 100"/>
+                                                        <span t-else="" class="text-muted small">-</span>
+                                                    </td>
+                                                    <td class="py-2 text-muted small" t-esc="app.submission_date"/>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Stats - Compact Footer -->
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-transparent border-0 pb-0">
+                                    <h6 class="mb-0 text-dark">Statistiques Détaillées</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    <div class="row text-center">
+                                        <div class="col-6 col-md-3 mb-2">
+                                            <div class="border-end border-light">
+                                                <div class="h5 mb-1 text-info fw-bold" t-esc="state.data.stats.pending_applications"/>
+                                                <div class="small text-muted">En Attente</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3 mb-2">
+                                            <div class="border-end border-light">
+                                                <div class="h5 mb-1 text-danger fw-bold" t-esc="state.data.stats.rejected_applications"/>
+                                                <div class="small text-muted">Rejetées</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3 mb-2">
+                                            <div class="border-end border-light">
+                                                <div class="h5 mb-1 text-success fw-bold">
+                                                    <t t-if="state.data.stats.total_applications > 0" 
+                                                       t-esc="Math.round((state.data.stats.selected_ongs / state.data.stats.total_applications) * 100)"/>
+                                                    <t t-else="">0</t>%
+                                                </div>
+                                                <div class="small text-muted">Taux Sélection</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3 mb-2">
+                                            <div class="h5 mb-1 text-warning fw-bold">
                                                 <t t-if="state.data.stats.total_applications > 0"
                                                    t-esc="Math.round(state.data.stats.total_applications / state.data.stats.total_campaigns)"/>
                                                 <t t-else="">0</t>
                                             </div>
-                                            <div class="stat-label">Moy. Candidatures/Campagne</div>
+                                            <div class="small text-muted">Moy./Campagne</div>
                                         </div>
                                     </div>
                                 </div>
@@ -318,6 +332,49 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Footer -->
+                <footer class="dashboard-footer mt-4 pt-3 border-top" style="border-color: #e9ecef !important;">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center text-muted small">
+                                <i class="fa fa-info-circle me-2"/>
+                                <span>Dernière mise à jour : 
+                                    <span class="fw-medium" t-esc="new Date().toLocaleDateString('fr-FR', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'})"/>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <div class="d-flex align-items-center justify-content-md-end text-muted small">
+                                <i class="fa fa-users me-2"/>
+                                <span class="me-3">
+                                    <span class="fw-medium" t-esc="state.data.stats ? state.data.stats.total_campaigns : 0"/> campagnes
+                                </span>
+                                <i class="fa fa-building me-2"/>
+                                <span class="me-3">
+                                    <span class="fw-medium" t-esc="state.data.stats ? state.data.stats.total_applications : 0"/> ONGs
+                                </span>
+                                <i class="fa fa-chart-line me-2"/>
+                                <span>
+                                    Version <span class="fw-medium">2.1.0</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <div class="text-center text-muted" style="font-size: 12px;">
+                                <span>Système de Gestion de Recrutement ONGs</span>
+                                <span class="mx-2">•</span>
+                                <span>© 2025 - Tous droits réservés</span>
+                                <span class="mx-2">•</span>
+                                <a href="#" class="text-decoration-none text-muted" t-on-click="openSupport">Support</a>
+                                <span class="mx-2">•</span>
+                                <a href="#" class="text-decoration-none text-muted" t-on-click="openDocumentation">Documentation</a>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
             </div>
         </div>
     </t>
