@@ -16,7 +16,12 @@ export class OngDashboardWidget extends Component {
         this.state = useState({
             data: {},
             loading: true,
-            error: null
+            error: null,
+            analytics: {
+                trends: {},
+                insights: [],
+                recommendations: []
+            }
         });
         
         onWillStart(async () => {
@@ -72,6 +77,7 @@ export class OngDashboardWidget extends Component {
                 this.notification.add('Erreur lors du chargement des données', { type: 'danger' });
             } else if (result) {
                 this.state.data = result;
+                this.generateAnalytics();
                 if (typeof Chart !== 'undefined') {
                     this.renderCharts();
                 } else {
@@ -90,6 +96,101 @@ export class OngDashboardWidget extends Component {
         }
     }
     
+    generateAnalytics() {
+        const data = this.state.data;
+        if (!data || !data.stats) return;
+        
+        // Calculate trends and insights
+        const insights = [];
+        const recommendations = [];
+        
+        // Success rate analysis
+        const successRate = data.stats.total_applications > 0 
+            ? (data.stats.selected_ongs / data.stats.total_applications) * 100 
+            : 0;
+        
+        if (successRate > 80) {
+            insights.push({
+                type: 'success',
+                icon: 'fa-arrow-up',
+                title: 'Taux de sélection excellent',
+                description: `${successRate.toFixed(1)}% des candidatures sont acceptées`,
+                trend: 'positive'
+            });
+        } else if (successRate < 20) {
+            insights.push({
+                type: 'warning',
+                icon: 'fa-arrow-down',
+                title: 'Taux de sélection faible',
+                description: `Seulement ${successRate.toFixed(1)}% des candidatures sont acceptées`,
+                trend: 'negative'
+            });
+            recommendations.push({
+                priority: 'high',
+                title: 'Améliorer les critères de sélection',
+                description: 'Revoir les critères d\'éligibilité pour optimiser le taux de sélection',
+                action: 'review_criteria'
+            });
+        }
+        
+        // Application volume analysis
+        const avgApplicationsPerCampaign = data.stats.total_campaigns > 0 
+            ? data.stats.total_applications / data.stats.total_campaigns 
+            : 0;
+        
+        if (avgApplicationsPerCampaign < 5) {
+            insights.push({
+                type: 'info',
+                icon: 'fa-users',
+                title: 'Participation limitée',
+                description: `Moyenne de ${avgApplicationsPerCampaign.toFixed(1)} candidatures par campagne`,
+                trend: 'neutral'
+            });
+            recommendations.push({
+                priority: 'medium',
+                title: 'Augmenter la visibilité',
+                description: 'Améliorer la communication pour attirer plus de candidatures',
+                action: 'improve_visibility'
+            });
+        }
+        
+        // Active campaigns analysis
+        const activeCampaignRatio = data.stats.total_campaigns > 0 
+            ? (data.stats.active_campaigns / data.stats.total_campaigns) * 100 
+            : 0;
+        
+        if (activeCampaignRatio > 50) {
+            insights.push({
+                type: 'info',
+                icon: 'fa-calendar-check',
+                title: 'Forte activité',
+                description: `${activeCampaignRatio.toFixed(0)}% des campagnes sont actives`,
+                trend: 'positive'
+            });
+        }
+        
+        // Seasonal trends (mock data for demonstration)
+        const currentMonth = new Date().getMonth();
+        if (currentMonth >= 8 && currentMonth <= 11) { // Sept-Dec
+            recommendations.push({
+                priority: 'medium',
+                title: 'Période de forte demande',
+                description: 'Préparer les ressources pour la saison de recrutement',
+                action: 'prepare_resources'
+            });
+        }
+        
+        this.state.analytics = {
+            trends: {
+                successRate: successRate,
+                avgApplications: avgApplicationsPerCampaign,
+                activeCampaignRatio: activeCampaignRatio
+            },
+            insights: insights,
+            recommendations: recommendations
+        };
+    }
+    
     renderCharts() {
         setTimeout(() => {
             try {
@@ -98,6 +199,8 @@ export class OngDashboardWidget extends Component {
                 this.renderMonthlyChart();
                 this.renderScoreChart();
                 this.renderDomainsChart();
+                this.renderTrendsChart();
+                this.renderPerformanceChart();
             } catch (error) {
                 console.error('Error rendering charts:', error);
                 this.notification.add('Erreur lors de l\'affichage des graphiques', { type: 'warning' });
@@ -122,28 +225,38 @@ export class OngDashboardWidget extends Component {
                 datasets: [{
                     data: chartData.data,
                     backgroundColor: [
-                        '#6f42c1', '#17a2b8', '#28a745', 
-                        '#fd7e14', '#dc3545', '#6c757d'
+                        'rgba(99, 102, 241, 0.8)',
+                        'rgba(59, 130, 246, 0.8)', 
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(156, 163, 175, 0.8)'
                     ],
-                    borderWidth: 2,
-                    borderColor: '#ffffff'
+                    borderWidth: 0,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#ffffff'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: false
-                    },
                     legend: {
                         position: 'bottom',
                         labels: {
-                            padding: 10,
-                            font: {
-                                size: 11
-                            }
+                            padding: 15,
+                            font: { size: 12 },
+                            usePointStyle: true,
+                            pointStyle: 'circle'
                         }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderWidth: 1,
+                        cornerRadius: 8
                     }
                 }
             }
@@ -167,38 +280,43 @@ export class OngDashboardWidget extends Component {
                 datasets: [{
                     label: 'Candidatures',
                     data: chartData.data,
-                    backgroundColor: '#3498db',
-                    borderColor: '#2980b9',
-                    borderWidth: 1,
-                    borderRadius: 4
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 0,
+                    borderRadius: 6,
+                    borderSkipped: false,
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: false
-                    },
-                    legend: {
-                        display: false
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        cornerRadius: 8
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)',
+                            drawBorder: false
+                        },
                         ticks: {
                             stepSize: 1,
-                            font: {
-                                size: 10
-                            }
+                            font: { size: 11 },
+                            color: '#6b7280'
                         }
                     },
                     x: {
+                        grid: { display: false },
                         ticks: {
-                            font: {
-                                size: 10
-                            }
+                            font: { size: 11 },
+                            color: '#6b7280'
                         }
                     }
                 }
@@ -223,41 +341,47 @@ export class OngDashboardWidget extends Component {
                 datasets: [{
                     label: 'Candidatures',
                     data: chartData.data,
-                    borderColor: '#27ae60',
-                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
                     tension: 0.4,
                     fill: true,
-                    pointBackgroundColor: '#27ae60',
+                    pointBackgroundColor: 'rgba(16, 185, 129, 1)',
                     pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: false
-                    },
-                    legend: {
-                        display: false
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        cornerRadius: 8
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)',
+                            drawBorder: false
+                        },
                         ticks: {
                             stepSize: 1,
-                            font: {
-                                size: 10
-                            }
+                            font: { size: 11 },
+                            color: '#6b7280'
                         }
                     },
                     x: {
+                        grid: { display: false },
                         ticks: {
-                            font: {
-                                size: 10
-                            }
+                            font: { size: 11 },
+                            color: '#6b7280'
                         }
                     }
                 }
@@ -283,39 +407,48 @@ export class OngDashboardWidget extends Component {
                     label: 'Nombre d\'ONGs',
                     data: chartData.data,
                     backgroundColor: [
-                        '#e74c3c', '#f39c12', '#f1c40f',
-                        '#27ae60', '#16a085', '#3498db'
+                        'rgba(239, 68, 68, 0.8)',   // Rouge
+                        'rgba(245, 158, 11, 0.8)',  // Orange
+                        'rgba(251, 191, 36, 0.8)',  // Jaune
+                        'rgba(16, 185, 129, 0.8)',  // Vert
+                        'rgba(6, 182, 212, 0.8)',   // Cyan
+                        'rgba(99, 102, 241, 0.8)'   // Indigo
                     ],
-                    borderWidth: 1,
-                    borderRadius: 4
+                    borderWidth: 0,
+                    borderRadius: 6,
+                    borderSkipped: false
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    title: {
-                        display: false
-                    },
-                    legend: {
-                        display: false
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        cornerRadius: 8
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)',
+                            drawBorder: false
+                        },
                         ticks: {
                             stepSize: 1,
-                            font: {
-                                size: 10
-                            }
+                            font: { size: 11 },
+                            color: '#6b7280'
                         }
                     },
                     x: {
+                        grid: { display: false },
                         ticks: {
-                            font: {
-                                size: 10
-                            }
+                            font: { size: 11 },
+                            color: '#6b7280'
                         }
                     }
                 }
@@ -340,10 +473,11 @@ export class OngDashboardWidget extends Component {
                 datasets: [{
                     label: 'Candidatures',
                     data: chartData.data,
-                    backgroundColor: '#9b59b6',
-                    borderColor: '#8e44ad',
-                    borderWidth: 1,
-                    borderRadius: 4
+                    backgroundColor: 'rgba(147, 51, 234, 0.8)',
+                    borderColor: 'rgba(147, 51, 234, 1)',
+                    borderWidth: 0,
+                    borderRadius: 6,
+                    borderSkipped: false
                 }]
             },
             options: {
@@ -351,28 +485,155 @@ export class OngDashboardWidget extends Component {
                 maintainAspectRatio: false,
                 indexAxis: 'y',
                 plugins: {
-                    title: {
-                        display: false
-                    },
-                    legend: {
-                        display: false
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        cornerRadius: 8
                     }
                 },
                 scales: {
                     x: {
                         beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)',
+                            drawBorder: false
+                        },
                         ticks: {
                             stepSize: 1,
-                            font: {
-                                size: 10
-                            }
+                            font: { size: 11 },
+                            color: '#6b7280'
                         }
                     },
                     y: {
+                        grid: { display: false },
                         ticks: {
-                            font: {
-                                size: 10
-                            }
+                            font: { size: 11 },
+                            color: '#6b7280'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    renderTrendsChart() {
+        const ctx = document.getElementById('trendsChart');
+        if (!ctx || typeof Chart === 'undefined') return;
+        
+        if (this.trendsChartInstance) {
+            this.trendsChartInstance.destroy();
+        }
+        
+        // Mock trend data
+        const trendData = {
+            labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+            applications: [45, 62, 38, 71, 56, 89],
+            selections: [12, 18, 8, 22, 16, 28]
+        };
+        
+        this.trendsChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: trendData.labels,
+                datasets: [{
+                    label: 'Candidatures',
+                    data: trendData.applications,
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 4
+                }, {
+                    label: 'Sélections',
+                    data: trendData.selections,
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: { size: 12 },
+                            usePointStyle: true
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: { size: 11 },
+                            color: '#6b7280'
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: 11 },
+                            color: '#6b7280'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    renderPerformanceChart() {
+        const ctx = document.getElementById('performanceChart');
+        if (!ctx || typeof Chart === 'undefined') return;
+        
+        if (this.performanceChartInstance) {
+            this.performanceChartInstance.destroy();
+        }
+        
+        const performanceData = {
+            labels: ['Qualité', 'Délai', 'Budget', 'Innovation', 'Impact'],
+            data: [85, 72, 68, 91, 79]
+        };
+        
+        this.performanceChartInstance = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: performanceData.labels,
+                datasets: [{
+                    label: 'Performance',
+                    data: performanceData.data,
+                    borderColor: 'rgba(99, 102, 241, 1)',
+                    backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                    pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        pointLabels: {
+                            font: { size: 11 },
+                            color: '#6b7280'
                         }
                     }
                 }
@@ -393,7 +654,7 @@ export class OngDashboardWidget extends Component {
         }
     }
     
-    // Fixed action methods with better error handling
+    // Action methods remain the same...
     openCampaignsList() {
         try {
             const actionData = {
@@ -432,6 +693,22 @@ export class OngDashboardWidget extends Component {
             console.error('Error opening applications list:', error);
             this.notification.add('Erreur lors de l\'ouverture de la liste des candidatures', { type: 'warning' });
         }
+    }
+
+    // Add this method to your component class
+    getAppStateColor(state) {
+        const stateColors = {
+            'draft': 'secondary',
+            'submitted': 'info',
+            'in_review': 'warning',
+            'accepted': 'success',
+            'rejected': 'danger',
+            'pending': 'warning',
+            'selected': 'success',
+            'waiting': 'info',
+            // Add more state mappings as needed
+        };
+        return stateColors[state] || 'secondary';
     }
     
     openApplication(applicationId) {
@@ -482,36 +759,6 @@ export class OngDashboardWidget extends Component {
         }
     }
     
-    openSupport() {
-        try {
-            const actionData = {
-                type: 'ir.actions.act_url',
-                url: '/web/support',
-                target: 'new'
-            };
-            
-            this.actionService.doAction(actionData);
-        } catch (error) {
-            console.error('Error opening support:', error);
-            this.notification.add('Page de support non disponible', { type: 'info' });
-        }
-    }
-    
-    openDocumentation() {
-        try {
-            const actionData = {
-                type: 'ir.actions.act_url',
-                url: '/web/documentation',
-                target: 'new'
-            };
-            
-            this.actionService.doAction(actionData);
-        } catch (error) {
-            console.error('Error opening documentation:', error);
-            this.notification.add('Documentation non disponible', { type: 'info' });
-        }
-    }
-    
     getStateColor(state) {
         const colors = {
             'draft': 'secondary',
@@ -521,39 +768,53 @@ export class OngDashboardWidget extends Component {
             'rejected': 'danger',
             'open': 'success',
             'evaluation': 'warning',
-            'closed': 'secondary'
+            'closed': 'secondary',
+            'completed': 'primary',
+            'in_progress': 'info',
+            'canceled': 'warning',
+            'closed': 'danger',
         };
         return colors[state] || 'secondary';
     }
     
-    // Enhanced cleanup method
+    getInsightIcon(type) {
+        const icons = {
+            'success': 'fa-check-circle text-success',
+            'warning': 'fa-exclamation-triangle text-warning',
+            'info': 'fa-info-circle text-info',
+            'danger': 'fa-times-circle text-danger'
+        };
+        return icons[type] || 'fa-info-circle text-info';
+    }
+    
+    getPriorityColor(priority) {
+        const priorityColors = {
+            'high': 'danger',
+            'medium': 'warning',
+            'low': 'info',
+            'critical': 'danger',
+            'normal': 'success',
+        };
+        return priorityColors[priority.toLowerCase()] || 'secondary';
+    }
+    
     willUnmount() {
         try {
-            if (this.statesChartInstance) {
-                this.statesChartInstance.destroy();
-                this.statesChartInstance = null;
-            }
-            if (this.countriesChartInstance) {
-                this.countriesChartInstance.destroy();
-                this.countriesChartInstance = null;
-            }
-            if (this.monthlyChartInstance) {
-                this.monthlyChartInstance.destroy();
-                this.monthlyChartInstance = null;
-            }
-            if (this.scoreChartInstance) {
-                this.scoreChartInstance.destroy();
-                this.scoreChartInstance = null;
-            }
-            if (this.domainsChartInstance) {
-                this.domainsChartInstance.destroy();
-                this.domainsChartInstance = null;
-            }
+            const charts = [
+                'statesChartInstance', 'countriesChartInstance', 'monthlyChartInstance',
+                'scoreChartInstance', 'domainsChartInstance', 'trendsChartInstance', 'performanceChartInstance'
+            ];
+            
+            charts.forEach(chartName => {
+                if (this[chartName]) {
+                    this[chartName].destroy();
+                    this[chartName] = null;
+                }
+            });
         } catch (error) {
             console.error('Error cleaning up charts:', error);
         }
     }
 }
 
-// Register the component
 registry.category('actions').add('ong_dashboard_widget', OngDashboardWidget);

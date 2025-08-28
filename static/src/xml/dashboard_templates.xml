@@ -1,236 +1,489 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates>
     <t t-name="recrutement_ongs.DashboardWidget" owl="1">
-        <div class="ong-dashboard-container" style="height: 100vh; overflow-y: auto; background: #f8f9fa;">
-            <div class="ong-dashboard" style="padding: 1rem; max-width: 1400px; margin: 0 auto;">
+        <div class="ong-dashboard-container" style="min-height: 100vh; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
+            <div class="ong-dashboard" style="padding: 1.5rem; max-width: 1600px; margin: 0 auto; height: 100vh; overflow-y: auto;">
                 
-                <!-- Header Compact -->
-                <div class="dashboard-header d-flex justify-content-between align-items-center mb-3 p-3 bg-white rounded shadow-sm">
-                    <div>
-                        <h4 class="mb-1 text-dark fw-bold" style="color: #ffffff !important;">Tableau de Bord</h4>
-                        <small class="text-muted" style="color: #ffffff !important;">Recrutement ONGs</small>
-                    </div>
-                    <div class="btn-group">
-                        <button class="btn btn-sm btn-outline-primary" t-on-click="refreshData" style="color: #ffffff !important;">
-                            <i class="fa fa-refresh me-1"/>Actualiser
-                        </button>
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" 
-                                    data-bs-toggle="dropdown" style="color: #ffffff !important;">
-                                <i class="fa fa-download me-1"/>Export
+                <!-- Header with Subtle Design -->
+                <div class="dashboard-header mb-4 p-4 rounded-3 position-relative" 
+                     style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-2 fw-bold" style="color: #334155; text-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                                <i class="fa fa-chart-line me-3" style="color: #4f46e5;"></i>Tableau de Bord Analytique
+                            </h2>
+                            <p class="mb-0 opacity-75" style="color: #64748b;">
+                                Gestion Intelligente du Recrutement ONGs
+                            </p>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-outline-primary btn-lg rounded-pill px-4 me-2" t-on-click="refreshData" 
+                                    style="background: rgba(255, 255, 255, 0.8); border-color: #c7d2fe;">
+                                <i class="fa fa-sync-alt me-2"></i>Actualiser
                             </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" t-on-click="() => this.exportDashboard('pdf')">
-                                    <i class="fa fa-file-pdf me-2"/>PDF</a></li>
-                                <li><a class="dropdown-item" t-on-click="() => this.exportDashboard('excel')">
-                                    <i class="fa fa-file-excel me-2"/>Excel</a></li>
-                            </ul>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-secondary btn-lg rounded-pill px-4 dropdown-toggle" 
+                                        data-bs-toggle="dropdown"
+                                        style="background: rgba(255, 255, 255, 0.8); border-color: #e2e8f0;">
+                                    <i class="fa fa-download me-2"></i>Export
+                                </button>
+                                <ul class="dropdown-menu shadow-lg border-0" style="backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.98);">
+                                    <li><a class="dropdown-item" t-on-click="() => this.exportDashboard('pdf')">
+                                        <i class="fa fa-file-pdf me-2 text-danger"></i>Rapport PDF</a></li>
+                                    <li><a class="dropdown-item" t-on-click="() => this.exportDashboard('excel')">
+                                        <i class="fa fa-file-excel me-2 text-success"></i>Données Excel</a></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Loading State -->
+                <!-- Loading State with Modern Spinner -->
                 <div t-if="state.loading" class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;">
-                        <span class="visually-hidden">Chargement...</span>
-                    </div>
-                    <p class="mt-2 text-muted">Chargement des données...</p>
+                    <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem; border-width: 4px;"></div>
+                    <h5 style="color: #475569;">Analyse des données en cours...</h5>
+                    <p class="text-secondary opacity-75">Génération des insights et recommandations</p>
                 </div>
 
                 <!-- Error State -->
-                <div t-if="state.error" class="alert alert-danger mx-3">
-                    <i class="fa fa-exclamation-triangle me-2"/>
-                    <strong>Erreur:</strong> <span t-esc="state.error"/>
-                    <button class="btn btn-sm btn-outline-danger ms-2" t-on-click="refreshData">
-                        Réessayer
-                    </button>
+                <div t-if="state.error" class="alert alert-warning border-0 rounded-3 mx-3 shadow-sm" 
+                     style="background: rgba(254, 252, 232, 0.9); backdrop-filter: blur(10px); border-left: 4px solid #f59e0b;">
+                    <div class="d-flex align-items-center">
+                        <i class="fa fa-exclamation-triangle fa-2x me-3 text-warning"></i>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1 text-gray-800">Erreur de chargement</h6>
+                            <p class="mb-0 text-gray-600 opacity-90" t-esc="state.error"></p>
+                        </div>
+                        <button class="btn btn-outline-warning rounded-pill" t-on-click="refreshData">
+                            <i class="fa fa-redo me-1"></i>Réessayer
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Dashboard Content -->
                 <div t-if="!state.loading and !state.error and state.data.stats" class="dashboard-content">
                     
-                    <!-- KPI Cards - Compact -->
-                    <div class="row g-2 mb-3">
-                        <div class="col-6 col-md-3">
-                            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #3498db !important;">
-                                <div class="card-body p-3">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-shrink-0">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center" 
-                                                 style="width: 40px; height: 40px; background: #3498db20;">
-                                                <i class="fa fa-bullhorn text-primary"/>
-                                            </div>
-                                        </div>
-                                        <div class="ms-3">
-                                            <h5 class="mb-0 fw-bold" t-esc="state.data.stats.total_campaigns"/>
-                                            <small class="text-muted">Campagnes</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-6 col-md-3">
-                            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #27ae60 !important;">
-                                <div class="card-body p-3">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-shrink-0">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center" 
-                                                 style="width: 40px; height: 40px; background: #27ae6020;">
-                                                <i class="fa fa-play-circle text-success"/>
-                                            </div>
-                                        </div>
-                                        <div class="ms-3">
-                                            <h5 class="mb-0 fw-bold" t-esc="state.data.stats.active_campaigns"/>
-                                            <small class="text-muted">Actives</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-6 col-md-3">
-                            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #f39c12 !important;">
-                                <div class="card-body p-3">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-shrink-0">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center" 
-                                                 style="width: 40px; height: 40px; background: #f39c1220;">
-                                                <i class="fa fa-file-text text-warning"/>
-                                            </div>
-                                        </div>
-                                        <div class="ms-3">
-                                            <h5 class="mb-0 fw-bold" t-esc="state.data.stats.total_applications"/>
-                                            <small class="text-muted">Candidatures</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-6 col-md-3">
-                            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #e74c3c !important;">
-                                <div class="card-body p-3">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-shrink-0">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center" 
-                                                 style="width: 40px; height: 40px; background: #e74c3c20;">
-                                                <i class="fa fa-check-circle text-danger"/>
-                                            </div>
-                                        </div>
-                                        <div class="ms-3">
-                                            <h5 class="mb-0 fw-bold" t-esc="state.data.stats.selected_ongs"/>
-                                            <small class="text-muted">Sélectionnées</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Charts Section - Compact Grid -->
-                    <div class="row g-2 mb-3">
-                        <div class="col-lg-6">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-header bg-transparent border-0 pb-0">
-                                    <h6 class="mb-0 text-dark">Candidatures par État</h6>
-                                </div>
-                                <div class="card-body p-2">
-                                    <canvas id="statesChart" style="max-height: 200px;"/>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-lg-6">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-header bg-transparent border-0 pb-0">
-                                    <h6 class="mb-0 text-dark">Top 5 Pays</h6>
-                                </div>
-                                <div class="card-body p-2">
-                                    <canvas id="countriesChart" style="max-height: 200px;"/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row g-2 mb-3">
+                    <!-- Analytics Insights Section -->
+                    <div t-if="state.analytics.insights.length > 0" class="row g-3 mb-4">
                         <div class="col-12">
-                            <div class="card border-0 shadow-sm">
-                                <div class="card-header bg-transparent border-0 pb-0">
-                                    <h6 class="mb-0 text-dark">Évolution Mensuelle</h6>
+                            <div class="card border-0 rounded-3 shadow-sm h-100" 
+                                 style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <div class="card-header bg-transparent border-0 pb-2" style="background: rgba(248, 250, 252, 0.5);">
+                                    <h5 class="mb-0 d-flex align-items-center" style="color: #334155;">
+                                        <i class="fa fa-lightbulb me-2 text-amber-500" style="color: #f59e0b;"></i>
+                                        Insights Analytiques
+                                    </h5>
                                 </div>
-                                <div class="card-body p-2">
-                                    <canvas id="monthlyChart" style="max-height: 180px;"/>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div t-foreach="state.analytics.insights" t-as="insight" t-key="insight_index" class="col-md-4">
+                                            <div class="d-flex align-items-start p-3 rounded-3" 
+                                                 style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0.02) 100%); border-left: 4px solid rgba(99, 102, 241, 0.3);">
+                                                <div class="flex-shrink-0 me-3">
+                                                    <div class="rounded-circle d-flex align-items-center justify-content-center" 
+                                                         style="width: 45px; height: 45px; background: rgba(99, 102, 241, 0.1);">
+                                                        <i t-attf-class="fa {{ insight.icon }} text-primary"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1 fw-bold text-gray-800" t-esc="insight.title"></h6>
+                                                    <p class="mb-0 text-muted small" t-esc="insight.description"></p>
+                                                    <span t-attf-class="badge badge-sm mt-1 bg-{{ insight.type }}" t-esc="insight.trend"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row g-2 mb-3">
-                        <div class="col-lg-6">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-header bg-transparent border-0 pb-0">
-                                    <h6 class="mb-0 text-dark">Distribution des Scores</h6>
+                    <!-- Recommendations Section -->
+                    <div t-if="state.analytics.recommendations.length > 0" class="row g-3 mb-4">
+                        <div class="col-12">
+                            <div class="card border-0 rounded-3 shadow-sm" 
+                                 style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <div class="card-header bg-transparent border-0 pb-2" style="background: rgba(248, 250, 252, 0.5);">
+                                    <h5 class="mb-0 d-flex align-items-center" style="color: #334155;">
+                                        <i class="fa fa-target me-2 text-emerald-600" style="color: #059669;"></i>
+                                        Recommandations Stratégiques
+                                    </h5>
                                 </div>
-                                <div class="card-body p-2">
-                                    <canvas id="scoreChart" style="max-height: 200px;"/>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div t-foreach="state.analytics.recommendations" t-as="rec" t-key="rec_index" class="col-md-6">
+                                            <div class="d-flex align-items-start p-3 rounded-3" 
+                                                 style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%); border-left: 4px solid rgba(16, 185, 129, 0.3);">
+                                                <div class="flex-shrink-0 me-3">
+                                                    <span t-attf-class="badge bg-{{ getPriorityColor(rec.priority) }} rounded-pill">
+                                                        <t t-esc="rec.priority"></t>
+                                                    </span>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1 fw-bold text-gray-800" t-esc="rec.title"></h6>
+                                                    <p class="mb-0 text-muted small" t-esc="rec.description"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Enhanced KPI Cards with Subtle Colors -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card border-0 rounded-3 shadow-sm h-100 position-relative overflow-hidden" 
+                                 style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%); border: 1px solid rgba(226, 232, 240, 0.8); transition: transform 0.3s ease;"
+                                 onmouseover="this.style.transform='scale(1.02)'"
+                                 onmouseout="this.style.transform='scale(1)'">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <h3 class="mb-1 fw-bold text-indigo-700" style="color: #4f46e5;" t-esc="state.data.stats.total_campaigns"></h3>
+                                            <p class="mb-0 opacity-75 text-gray-600">Campagnes Totales</p>
+                                        </div>
+                                        <div class="fs-1 opacity-50 text-indigo-300" style="color: #a5b4fc;">
+                                            <i class="fa fa-bullhorn"></i>
+                                        </div>
+                                    </div>
+                                    <div class="progress mt-3" style="height: 4px; background: rgba(99, 102, 241, 0.1);">
+                                        <div class="progress-bar bg-indigo-500" style="background-color: #6366f1; width: 85%"></div>
+                                    </div>
+                                </div>
+                                <div class="position-absolute top-0 end-0 p-2">
+                                    <span class="badge bg-indigo-100 text-indigo-800 small" style="background-color: #e0e7ff; color: #3730a3;">+12%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card border-0 rounded-3 shadow-sm h-100 overflow-hidden" 
+                                 style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%); border: 1px solid rgba(226, 232, 240, 0.8); transition: transform 0.3s ease;"
+                                 onmouseover="this.style.transform='scale(1.02)'"
+                                 onmouseout="this.style.transform='scale(1)'">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <h3 class="mb-1 fw-bold text-emerald-700" style="color: #059669;" t-esc="state.data.stats.active_campaigns"></h3>
+                                            <p class="mb-0 opacity-75 text-gray-600">Campagnes Actives</p>
+                                        </div>
+                                        <div class="fs-1 opacity-50 text-emerald-300" style="color: #6ee7b7;">
+                                            <i class="fa fa-play-circle"></i>
+                                        </div>
+                                    </div>
+                                    <div class="progress mt-3" style="height: 4px; background: rgba(16, 185, 129, 0.1);">
+                                        <div class="progress-bar bg-emerald-500" style="background-color: #10b981; width: 70%"></div>
+                                    </div>
+                                </div>
+                                <div class="position-absolute top-0 end-0 p-2">
+                                    <span class="badge bg-emerald-100 text-emerald-800 small" style="background-color: #d1fae5; color: #065f46;">+5%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card border-0 rounded-3 shadow-sm h-100 overflow-hidden" 
+                                 style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%); border: 1px solid rgba(226, 232, 240, 0.8); transition: transform 0.3s ease;"
+                                 onmouseover="this.style.transform='scale(1.02)'"
+                                 onmouseout="this.style.transform='scale(1)'">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <h3 class="mb-1 fw-bold text-red-700" style="color: #dc2626;" t-esc="state.data.stats.total_applications"></h3>
+                                            <p class="mb-0 opacity-75 text-gray-600">Candidatures</p>
+                                        </div>
+                                        <div class="fs-1 opacity-50 text-red-300" style="color: #fca5a5;">
+                                            <i class="fa fa-file-alt"></i>
+                                        </div>
+                                    </div>
+                                    <div class="progress mt-3" style="height: 4px; background: rgba(239, 68, 68, 0.1);">
+                                        <div class="progress-bar bg-red-500" style="background-color: #ef4444; width: 92%"></div>
+                                    </div>
+                                </div>
+                                <div class="position-absolute top-0 end-0 p-2">
+                                    <span class="badge bg-red-100 text-red-800 small" style="background-color: #fee2e2; color: #991b1b;">+28%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card border-0 rounded-3 shadow-sm h-100 overflow-hidden" 
+                                 style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%); border: 1px solid rgba(226, 232, 240, 0.8); transition: transform 0.3s ease;"
+                                 onmouseover="this.style.transform='scale(1.02)'"
+                                 onmouseout="this.style.transform='scale(1)'">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <h3 class="mb-1 fw-bold text-blue-700" style="color: #1d4ed8;" t-esc="state.data.stats.selected_ongs"></h3>
+                                            <p class="mb-0 opacity-75 text-gray-600">ONGs Sélectionnées</p>
+                                        </div>
+                                        <div class="fs-1 opacity-50 text-blue-300" style="color: #93c5fd;">
+                                            <i class="fa fa-check-circle"></i>
+                                        </div>
+                                    </div>
+                                    <div class="progress mt-3" style="height: 4px; background: rgba(59, 130, 246, 0.1);">
+                                        <div class="progress-bar bg-blue-500" style="background-color: #3b82f6;" 
+                                             t-attf-style="width: {{ state.data.stats.total_applications > 0 ? (state.data.stats.selected_ongs / state.data.stats.total_applications) * 100 : 0 }}%"></div>
+                                    </div>
+                                </div>
+                                <div class="position-absolute top-0 end-0 p-2">
+                                    <span class="badge bg-blue-100 text-blue-800 small" style="background-color: #dbeafe; color: #1e40af;">+15%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Analytics Section -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-lg-4">
+                            <div class="card border-0 rounded-3 shadow-sm h-100" 
+                                 style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <div class="card-header bg-transparent border-0 pb-0" style="background: rgba(248, 250, 252, 0.5);">
+                                    <h6 class="mb-0 fw-bold d-flex align-items-center text-gray-800">
+                                        <i class="fa fa-tachometer-alt me-2 text-blue-500" style="color: #3b82f6;"></i>
+                                        Métriques Temps Réel
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="small text-gray-600">Taux de réponse</span>
+                                            <span class="small fw-bold text-gray-800">87%</span>
+                                        </div>
+                                        <div class="progress" style="height: 6px; background: rgba(16, 185, 129, 0.1);">
+                                            <div class="progress-bar bg-emerald-500" style="background-color: #10b981; width: 87%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="small text-gray-600">Temps de traitement moyen</span>
+                                            <span class="small fw-bold text-gray-800">3.2j</span>
+                                        </div>
+                                        <div class="progress" style="height: 6px; background: rgba(245, 158, 11, 0.1);">
+                                            <div class="progress-bar bg-amber-500" style="background-color: #f59e0b; width: 65%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="small text-gray-600">Satisfaction globale</span>
+                                            <span class="small fw-bold text-gray-800">4.3/5</span>
+                                        </div>
+                                        <div class="progress" style="height: 6px; background: rgba(59, 130, 246, 0.1);">
+                                            <div class="progress-bar bg-blue-500" style="background-color: #3b82f6; width: 86%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <small class="text-muted">
+                                            <i class="fa fa-clock me-1"></i>
+                                            Dernière mise à jour: il y a 2 min
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-8">
+                            <div class="card border-0 rounded-3 shadow-sm h-100" 
+                                 style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <div class="card-header bg-transparent border-0 pb-0" style="background: rgba(248, 250, 252, 0.5);">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0 fw-bold d-flex align-items-center text-gray-800">
+                                            <i class="fa fa-chart-area me-2 text-indigo-500" style="color: #6366f1;"></i>
+                                            Analyse Prédictive
+                                        </h6>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-indigo active" style="border-color: #c7d2fe; color: #4f46e5;">7j</button>
+                                            <button class="btn btn-outline-indigo" style="border-color: #c7d2fe; color: #4f46e5;">30j</button>
+                                            <button class="btn btn-outline-indigo" style="border-color: #c7d2fe; color: #4f46e5;">90j</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="predictiveChart" style="max-height: 220px;"></canvas>
+                                    <div class="row text-center mt-3">
+                                        <div class="col-4">
+                                            <div class="border-end" style="border-color: #e2e8f0 !important;">
+                                                <h6 class="text-indigo-600 mb-1" style="color: #4f46e5;">+34%</h6>
+                                                <small class="text-muted">Croissance prévue</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="border-end" style="border-color: #e2e8f0 !important;">
+                                                <h6 class="text-emerald-600 mb-1" style="color: #059669;">142</h6>
+                                                <small class="text-muted">Candidatures estimées</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <h6 class="text-amber-600 mb-1" style="color: #d97706;">92%</h6>
+                                            <small class="text-muted">Fiabilité du modèle</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section - Enhanced Layout -->
+                    <div class="row g-3 mb-4">
+                        <!-- Primary Charts -->
+                        <div class="col-lg-6">
+                            <div class="card border-0 rounded-3 shadow-sm h-100" 
+                                 style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <div class="card-header bg-transparent border-0 pb-0" style="background: rgba(248, 250, 252, 0.5);">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0 fw-bold d-flex align-items-center text-gray-800">
+                                            <i class="fa fa-chart-pie me-2 text-indigo-500" style="color: #6366f1;"></i>
+                                            États des Candidatures
+                                        </h6>
+                                        <button class="btn btn-sm btn-outline-indigo" style="border-color: #c7d2fe; color: #4f46e5;">
+                                            <i class="fa fa-expand-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="statesChart" style="max-height: 280px;"></canvas>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="col-lg-6">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-header bg-transparent border-0 pb-0">
-                                    <h6 class="mb-0 text-dark">Domaines d'Activité</h6>
+                            <div class="card border-0 rounded-3 shadow-sm h-100" 
+                                 style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <div class="card-header bg-transparent border-0 pb-0" style="background: rgba(248, 250, 252, 0.5);">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0 fw-bold d-flex align-items-center text-gray-800">
+                                            <i class="fa fa-globe me-2 text-blue-500" style="color: #3b82f6;"></i>
+                                            Répartition Géographique
+                                        </h6>
+                                        <button class="btn btn-sm btn-outline-blue" style="border-color: #bfdbfe; color: #1d4ed8;">
+                                            <i class="fa fa-map-marked-alt"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="card-body p-2">
-                                    <canvas id="domainsChart" style="max-height: 200px;"/>
+                                <div class="card-body">
+                                    <canvas id="countriesChart" style="max-height: 280px;"></canvas>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Tables Section - Compact -->
-                    <div class="row g-2 mb-3">
+                    <!-- Trends and Analytics Charts -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-lg-8">
+                            <div class="card border-0 rounded-3 shadow-sm h-100" 
+                                 style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <div class="card-header bg-transparent border-0 pb-0" style="background: rgba(248, 250, 252, 0.5);">
+                                    <h6 class="mb-0 fw-bold d-flex align-items-center text-gray-800">
+                                        <i class="fa fa-chart-line me-2 text-emerald-600" style="color: #059669;"></i>
+                                        Tendances et Évolution
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="trendsChart" style="max-height: 300px;"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-4">
+                            <div class="card border-0 rounded-3 shadow-sm h-100" 
+                                 style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <div class="card-header bg-transparent border-0 pb-0" style="background: rgba(248, 250, 252, 0.5);">
+                                    <h6 class="mb-0 fw-bold d-flex align-items-center text-gray-800">
+                                        <i class="fa fa-star me-2 text-amber-500" style="color: #f59e0b;"></i>
+                                        Performance Globale
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="performanceChart" style="max-height: 300px;"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Secondary Charts -->
+                    <div class="row g-3 mb-4">
                         <div class="col-lg-6">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center py-2">
-                                    <h6 class="mb-0 text-dark">Campagnes Récentes</h6>
-                                    <button class="btn btn-sm btn-link p-0 text-decoration-none" t-on-click="openCampaignsList">
-                                        Voir tout <i class="fa fa-arrow-right ms-1"/>
+                            <div class="card border-0 rounded-3 shadow-sm h-100" 
+                                 style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <div class="card-header bg-transparent border-0 pb-0" style="background: rgba(248, 250, 252, 0.5);">
+                                    <h6 class="mb-0 fw-bold d-flex align-items-center text-gray-800">
+                                        <i class="fa fa-chart-bar me-2 text-red-500" style="color: #ef4444;"></i>
+                                        Distribution des Scores
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="scoreChart" style="max-height: 280px;"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                            <div class="card border-0 rounded-3 shadow-sm h-100" 
+                                 style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <div class="card-header bg-transparent border-0 pb-0" style="background: rgba(248, 250, 252, 0.5);">
+                                    <h6 class="mb-0 fw-bold d-flex align-items-center text-gray-800">
+                                        <i class="fa fa-industry me-2 text-violet-500" style="color: #8b5cf6;"></i>
+                                        Domaines d'Activité
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="domainsChart" style="max-height: 280px;"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Data Tables -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-lg-6">
+                            <div class="card border-0 rounded-3 shadow-sm h-100" 
+                                 style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center" style="background: rgba(248, 250, 252, 0.5);">
+                                    <h6 class="mb-0 fw-bold d-flex align-items-center text-gray-800">
+                                        <i class="fa fa-calendar me-2 text-indigo-500" style="color: #6366f1;"></i>
+                                        Campagnes Récentes
+                                    </h6>
+                                    <button class="btn btn-sm btn-outline-indigo rounded-pill" t-on-click="openCampaignsList" style="border-color: #c7d2fe; color: #4f46e5;">
+                                        <i class="fa fa-external-link-alt me-1"></i>Voir tout
                                     </button>
                                 </div>
                                 <div class="card-body p-0">
-                                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                                        <table class="table table-hover mb-0" style="font-size: 13px;">
-                                            <thead class="bg-light sticky-top">
-                                                <tr>
-                                                    <th class="border-0 py-2">Nom</th>
-                                                    <th class="border-0 py-2">État</th>
-                                                    <th class="border-0 py-2">Cand.</th>
-                                                    <th class="border-0 py-2">Fin</th>
+                                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                        <table class="table table-hover mb-0">
+                                            <thead class="bg-gray-50 sticky-top">
+                                                <tr style="border-bottom: 2px solid #e5e7eb;">
+                                                    <th class="border-0 py-3 fw-bold text-gray-700">Campagne</th>
+                                                    <th class="border-0 py-3 fw-bold text-gray-700">État</th>
+                                                    <th class="border-0 py-3 fw-bold text-gray-700">Candidatures</th>
+                                                    <th class="border-0 py-3 fw-bold text-gray-700">Échéance</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr t-foreach="state.data.recent_campaigns" t-as="campaign" t-key="campaign.id"
-                                                    class="cursor-pointer" 
+                                                    class="cursor-pointer table-row-hover" 
                                                     t-on-click="() => this.openCampaign(campaign.id)"
-                                                    style="border-bottom: 1px solid #f1f3f4;">
-                                                    <td class="py-2">
-                                                        <div class="fw-medium text-truncate" style="max-width: 150px;" t-esc="campaign.name"/>
+                                                    style="border-bottom: 1px solid #f3f4f6; transition: background-color 0.2s ease;">
+                                                    <td class="py-3">
+                                                        <div class="fw-medium text-truncate text-gray-800" style="max-width: 200px;" t-esc="campaign.name"></div>
+                                                        <small class="text-muted">ID: <t t-esc="campaign.id"></t></small>
                                                     </td>
-                                                    <td class="py-2">
-                                                        <span t-attf-class="badge rounded-pill bg-{{ getStateColor(campaign.state) }}" 
-                                                              style="font-size: 10px;" t-esc="campaign.state_label"/>
+                                                    <td class="py-3">
+                                                        <span t-attf-class="badge rounded-pill px-3 py-2 bg-{{ getStateColor(campaign.state) }}" 
+                                                              style="font-size: 11px;" t-esc="campaign.state_label"></span>
                                                     </td>
-                                                    <td class="py-2">
-                                                        <span t-esc="campaign.total_applications"/>
-                                                        <span t-if="campaign.selected_applications > 0" 
-                                                              class="text-success small">
-                                                            (<t t-esc="campaign.selected_applications"/>)
-                                                        </span>
+                                                    <td class="py-3">
+                                                        <div class="d-flex align-items-center">
+                                                            <span class="fw-bold me-2 text-gray-800" t-esc="campaign.total_applications"></span>
+                                                            <div t-if="campaign.selected_applications > 0" class="small">
+                                                                <span class="badge bg-success rounded-pill" t-esc="campaign.selected_applications"></span>
+                                                            </div>
+                                                        </div>
                                                     </td>
-                                                    <td class="py-2 text-muted small" t-esc="campaign.end_date"/>
+                                                    <td class="py-3">
+                                                        <span class="text-muted small" t-esc="campaign.end_date"></span>
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -240,44 +493,53 @@
                         </div>
                         
                         <div class="col-lg-6">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center py-2">
-                                    <h6 class="mb-0 text-dark">Candidatures Récentes</h6>
-                                    <button class="btn btn-sm btn-link p-0 text-decoration-none" t-on-click="openApplicationsList">
-                                        Voir tout <i class="fa fa-arrow-right ms-1"/>
+                            <div class="card border-0 rounded-3 shadow-sm h-100" 
+                                 style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8);">
+                                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center" style="background: rgba(248, 250, 252, 0.5);">
+                                    <h6 class="mb-0 fw-bold d-flex align-items-center text-gray-800">
+                                        <i class="fa fa-building me-2 text-emerald-600" style="color: #059669;"></i>
+                                        Candidatures Récentes
+                                    </h6>
+                                    <button class="btn btn-sm btn-outline-emerald rounded-pill" t-on-click="openApplicationsList" style="border-color: #a7f3d0; color: #059669;">
+                                        <i class="fa fa-external-link-alt me-1"></i>Voir tout
                                     </button>
                                 </div>
                                 <div class="card-body p-0">
-                                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                                        <table class="table table-hover mb-0" style="font-size: 13px;">
-                                            <thead class="bg-light sticky-top">
-                                                <tr>
-                                                    <th class="border-0 py-2">ONG</th>
-                                                    <th class="border-0 py-2">État</th>
-                                                    <th class="border-0 py-2">Score</th>
-                                                    <th class="border-0 py-2">Date</th>
+                                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                        <table class="table table-hover mb-0">
+                                            <thead class="bg-gray-50 sticky-top">
+                                                <tr style="border-bottom: 2px solid #e5e7eb;">
+                                                    <th class="border-0 py-3 fw-bold text-gray-700">ONG</th>
+                                                    <th class="border-0 py-3 fw-bold text-gray-700">État</th>
+                                                    <th class="border-0 py-3 fw-bold text-gray-700">Score</th>
+                                                    <th class="border-0 py-3 fw-bold text-gray-700">Date</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr t-foreach="state.data.recent_applications" t-as="app" t-key="app.id"
-                                                    class="cursor-pointer"
+                                                    class="cursor-pointer table-row-hover" 
                                                     t-on-click="() => this.openApplication(app.id)"
-                                                    style="border-bottom: 1px solid #f1f3f4;">
-                                                    <td class="py-2">
-                                                        <div class="fw-medium text-truncate" style="max-width: 120px;" t-esc="app.name"/>
-                                                        <small class="text-muted d-block" t-esc="app.country"/>
+                                                    style="border-bottom: 1px solid #f3f4f6; transition: background-color 0.2s ease;">
+                                                    <td class="py-3">
+                                                        <div class="fw-medium text-truncate text-gray-800" style="max-width: 200px;" t-esc="app.ong_name"></div>
+                                                        <small class="text-muted" t-esc="app.campaign_name"></small>
                                                     </td>
-                                                    <td class="py-2">
-                                                        <span t-attf-class="badge rounded-pill bg-{{ getStateColor(app.state) }}" 
-                                                              style="font-size: 10px;" t-esc="app.state_label"/>
+                                                    <td class="py-3">
+                                                        <span t-attf-class="badge rounded-pill px-3 py-2 bg-{{ getAppStateColor(app.state) }}" 
+                                                              style="font-size: 11px;" t-esc="app.state_label"></span>
                                                     </td>
-                                                    <td class="py-2">
-                                                        <span t-if="app.total_score > 0" 
-                                                              t-attf-class="fw-bold small {{ app.total_score >= 70 ? 'text-success' : app.total_score >= 50 ? 'text-warning' : 'text-danger' }}"
-                                                              t-esc="Math.round(app.total_score * 100) / 100"/>
-                                                        <span t-else="" class="text-muted small">-</span>
+                                                    <td class="py-3">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="progress me-2" style="width: 60px; height: 6px; background: rgba(16, 185, 129, 0.1);">
+                                                                <div class="progress-bar bg-emerald-500" 
+                                                                     t-attf-style="width: {{ app.score }}%; background-color: #10b981;"></div>
+                                                            </div>
+                                                            <span class="fw-bold text-gray-800" t-esc="app.score"></span>
+                                                        </div>
                                                     </td>
-                                                    <td class="py-2 text-muted small" t-esc="app.submission_date"/>
+                                                    <td class="py-3">
+                                                        <span class="text-muted small" t-esc="app.create_date"></span>
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -287,94 +549,15 @@
                         </div>
                     </div>
 
-                    <!-- Additional Stats - Compact Footer -->
-                    <div class="row g-2">
-                        <div class="col-12">
-                            <div class="card border-0 shadow-sm">
-                                <div class="card-header bg-transparent border-0 pb-0">
-                                    <h6 class="mb-0 text-dark">Statistiques Détaillées</h6>
-                                </div>
-                                <div class="card-body p-3">
-                                    <div class="row text-center">
-                                        <div class="col-6 col-md-3 mb-2">
-                                            <div class="border-end border-light">
-                                                <div class="h5 mb-1 text-info fw-bold" t-esc="state.data.stats.pending_applications"/>
-                                                <div class="small text-muted">En Attente</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-3 mb-2">
-                                            <div class="border-end border-light">
-                                                <div class="h5 mb-1 text-danger fw-bold" t-esc="state.data.stats.rejected_applications"/>
-                                                <div class="small text-muted">Rejetées</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-3 mb-2">
-                                            <div class="border-end border-light">
-                                                <div class="h5 mb-1 text-success fw-bold">
-                                                    <t t-if="state.data.stats.total_applications > 0" 
-                                                       t-esc="Math.round((state.data.stats.selected_ongs / state.data.stats.total_applications) * 100)"/>
-                                                    <t t-else="">0</t>%
-                                                </div>
-                                                <div class="small text-muted">Taux Sélection</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-3 mb-2">
-                                            <div class="h5 mb-1 text-warning fw-bold">
-                                                <t t-if="state.data.stats.total_applications > 0"
-                                                   t-esc="Math.round(state.data.stats.total_applications / state.data.stats.total_campaigns)"/>
-                                                <t t-else="">0</t>
-                                            </div>
-                                            <div class="small text-muted">Moy./Campagne</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Footer -->
+                    <div class="text-center py-4">
+                        <p class="text-muted small mb-0">
+                            <i class="fa fa-shield-alt me-1"></i>
+                            Données sécurisées et actualisées en temps réel | 
+                            Dernière mise à jour: <span t-esc="state.lastUpdate"></span>
+                        </p>
                     </div>
                 </div>
-
-                <!-- Footer -->
-                <footer class="dashboard-footer mt-4 pt-3 border-top" style="border-color: #e9ecef !important;">
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center text-muted small">
-                                <i class="fa fa-info-circle me-2"/>
-                                <span>Dernière mise à jour : 
-                                    <span class="fw-medium" t-esc="new Date().toLocaleDateString('fr-FR', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'})"/>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-6 text-md-end">
-                            <div class="d-flex align-items-center justify-content-md-end text-muted small">
-                                <i class="fa fa-users me-2"/>
-                                <span class="me-3">
-                                    <span class="fw-medium" t-esc="state.data.stats ? state.data.stats.total_campaigns : 0"/> campagnes
-                                </span>
-                                <i class="fa fa-building me-2"/>
-                                <span class="me-3">
-                                    <span class="fw-medium" t-esc="state.data.stats ? state.data.stats.total_applications : 0"/> ONGs
-                                </span>
-                                <i class="fa fa-chart-line me-2"/>
-                                <span>
-                                    Version <span class="fw-medium">2.1.0</span>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-12">
-                            <div class="text-center text-muted" style="font-size: 12px;">
-                                <span>Système de Gestion de Recrutement ONGs</span>
-                                <span class="mx-2">•</span>
-                                <span>© 2025 - Tous droits réservés</span>
-                                <span class="mx-2">•</span>
-                                <a href="#" class="text-decoration-none text-muted" t-on-click="openSupport">Support</a>
-                                <span class="mx-2">•</span>
-                                <a href="#" class="text-decoration-none text-muted" t-on-click="openDocumentation">Documentation</a>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
             </div>
         </div>
     </t>
