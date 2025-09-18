@@ -44,6 +44,6 @@ Module complet pour le recrutement d'ONGs permettant:
     'auto_install': False,
     'application': True,
     'license': 'LGPL-3',
-    'post_init_hook': 'post_init_hook',
+    #'post_init_hook': 'post_init_hook',
     'uninstall_hook': 'uninstall_hook',
 }

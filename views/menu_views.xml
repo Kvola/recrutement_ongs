@@ -4,7 +4,7 @@
         <!-- Menu principal -->
         <menuitem id="menu_ong_recruitment_root"
                   name="Recrutement ONGs"
-                  sequence="10"/>
+                  sequence="1"/>
 
         <!-- Menu principal -->
         <menuitem id="menu_ong_dashboard_main" 
